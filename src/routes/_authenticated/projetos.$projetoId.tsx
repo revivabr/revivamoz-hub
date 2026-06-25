@@ -309,15 +309,7 @@ function NovoLancamento({
 
   const mutate = useMutation({
     mutationFn: async () => {
-      let comprovante_path: string | null = null;
-      const file = fileRef.current?.files?.[0];
-      if (file) {
-        const path = `${projetoId}/${crypto.randomUUID()}-${file.name}`;
-        const { error } = await supabase.storage.from("comprovantes").upload(path, file);
-        if (error) throw error;
-        comprovante_path = path;
-      }
-      const { error } = await supabase.from("lancamentos").insert({
+      const payload = {
         projeto_id: projetoId,
         tipo: form.tipo,
         data: form.data,
@@ -325,13 +317,30 @@ function NovoLancamento({
         descricao: form.descricao.trim() || null,
         categoria_id: form.categoria_id || null,
         etapa_id: form.etapa_id || null,
-        comprovante_path,
         created_by: userId,
-      });
+      };
+      const file = fileRef.current?.files?.[0];
+
+      // Offline: enfileira sem comprovante (upload requer ligação).
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        const { queueLancamento } = await import("@/lib/offline-queue");
+        queueLancamento(payload);
+        return { offline: true };
+      }
+
+      let comprovante_path: string | null = null;
+      if (file) {
+        const path = `${projetoId}/${crypto.randomUUID()}-${file.name}`;
+        const { error } = await supabase.storage.from("comprovantes").upload(path, file);
+        if (error) throw error;
+        comprovante_path = path;
+      }
+      const { error } = await supabase.from("lancamentos").insert({ ...payload, comprovante_path });
       if (error) throw error;
+      return { offline: false };
     },
-    onSuccess: () => {
-      toast.success("Lançamento registado.");
+    onSuccess: (res) => {
+      toast.success(res?.offline ? "Sem ligação — guardado para sincronizar." : "Lançamento registado.");
       setForm({ tipo: "saida", data: new Date().toISOString().slice(0, 10), valor: "", descricao: "", categoria_id: "", etapa_id: "" });
       if (fileRef.current) fileRef.current.value = "";
       setOpen(false);
