@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FolderKanban, Plus, Trash2, UserPlus, Users, Mail, Check } from "lucide-react";
@@ -153,31 +153,33 @@ function SubprojectsPage() {
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {projetos.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => setSelected(p)}
-              className="text-left"
-            >
-              <Card className="h-full transition hover:border-primary/60">
-                <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base">{p.nome}</CardTitle>
-                    <EstadoBadge estado={p.estado} />
-                  </div>
-                  <CardDescription className="line-clamp-2 min-h-[2.5rem]">
-                    {p.descricao || "Sem descrição"}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-xs text-muted-foreground">
-                  Orçamento: <span className="font-medium text-foreground">
-                    {Number(p.orcamento).toLocaleString("pt-PT")} {p.moeda}
-                  </span>
-                </CardContent>
-              </Card>
-            </button>
+            <Card key={p.id} className="flex h-full flex-col transition hover:border-primary/60">
+              <CardHeader className="pb-2">
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="text-base">{p.nome}</CardTitle>
+                  <EstadoBadge estado={p.estado} />
+                </div>
+                <CardDescription className="line-clamp-2 min-h-[2.5rem]">
+                  {p.descricao || "Sem descrição"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1 text-xs text-muted-foreground">
+                Orçamento: <span className="font-medium text-foreground">
+                  {Number(p.orcamento).toLocaleString("pt-PT")} {p.moeda}
+                </span>
+              </CardContent>
+              <div className="flex items-center justify-between gap-2 border-t p-3">
+                <Button asChild size="sm" variant="default">
+                  <Link to="/projetos/$projetoId" params={{ projetoId: p.id }}>Abrir painel</Link>
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setSelected(p)}>
+                  <Users className="mr-1 h-4 w-4" />Membros
+                </Button>
+              </div>
+            </Card>
           ))}
         </div>
+
       )}
 
       <ConvitesParaMim />

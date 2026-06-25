@@ -14,6 +14,167 @@ export type Database = {
   }
   public: {
     Tables: {
+      categorias: {
+        Row: {
+          cor: string | null
+          created_at: string
+          icone: string | null
+          id: string
+          nome: string
+          projeto_id: string | null
+          tipo: Database["public"]["Enums"]["lancamento_tipo"]
+          updated_at: string
+        }
+        Insert: {
+          cor?: string | null
+          created_at?: string
+          icone?: string | null
+          id?: string
+          nome: string
+          projeto_id?: string | null
+          tipo: Database["public"]["Enums"]["lancamento_tipo"]
+          updated_at?: string
+        }
+        Update: {
+          cor?: string | null
+          created_at?: string
+          icone?: string | null
+          id?: string
+          nome?: string
+          projeto_id?: string | null
+          tipo?: Database["public"]["Enums"]["lancamento_tipo"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categorias_projeto_id_fkey"
+            columns: ["projeto_id"]
+            isOneToOne: false
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      etapas: {
+        Row: {
+          created_at: string
+          data_fim: string | null
+          data_inicio: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          ordem: number
+          peso: number
+          progresso: number
+          projeto_id: string
+          updated_at: string
+          valor_previsto: number
+        }
+        Insert: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          ordem?: number
+          peso?: number
+          progresso?: number
+          projeto_id: string
+          updated_at?: string
+          valor_previsto?: number
+        }
+        Update: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          ordem?: number
+          peso?: number
+          progresso?: number
+          projeto_id?: string
+          updated_at?: string
+          valor_previsto?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "etapas_projeto_id_fkey"
+            columns: ["projeto_id"]
+            isOneToOne: false
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lancamentos: {
+        Row: {
+          categoria_id: string | null
+          comprovante_path: string | null
+          created_at: string
+          created_by: string
+          data: string
+          descricao: string | null
+          etapa_id: string | null
+          id: string
+          projeto_id: string
+          tipo: Database["public"]["Enums"]["lancamento_tipo"]
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          categoria_id?: string | null
+          comprovante_path?: string | null
+          created_at?: string
+          created_by: string
+          data?: string
+          descricao?: string | null
+          etapa_id?: string | null
+          id?: string
+          projeto_id: string
+          tipo: Database["public"]["Enums"]["lancamento_tipo"]
+          updated_at?: string
+          valor: number
+        }
+        Update: {
+          categoria_id?: string | null
+          comprovante_path?: string | null
+          created_at?: string
+          created_by?: string
+          data?: string
+          descricao?: string | null
+          etapa_id?: string | null
+          id?: string
+          projeto_id?: string
+          tipo?: Database["public"]["Enums"]["lancamento_tipo"]
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lancamentos_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lancamentos_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lancamentos_projeto_id_fkey"
+            columns: ["projeto_id"]
+            isOneToOne: false
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -232,6 +393,7 @@ export type Database = {
     Enums: {
       app_role: "super_admin" | "gestor" | "financiador"
       convite_estado: "pendente" | "aceite" | "revogado"
+      lancamento_tipo: "entrada" | "saida"
       projeto_estado:
         | "planeado"
         | "ativo"
@@ -368,6 +530,7 @@ export const Constants = {
     Enums: {
       app_role: ["super_admin", "gestor", "financiador"],
       convite_estado: ["pendente", "aceite", "revogado"],
+      lancamento_tipo: ["entrada", "saida"],
       projeto_estado: [
         "planeado",
         "ativo",

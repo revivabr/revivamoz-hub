@@ -59,11 +59,11 @@ export const roadmap: RoadmapPhase[] = [
     title: "Fase 4 — Gestão Financeira por Projeto",
     goal: "CRUD financeiro completo, simples e fluido para os gestores locais.",
     tasks: [
-      { id: "4.1", title: "Lançamentos de entradas e saídas com categorias", status: "todo" },
-      { id: "4.2", title: "Upload de comprovantes (Storage) com pré-visualização", status: "todo" },
-      { id: "4.3", title: "Orçamento (budget) por projeto e alertas de teto", status: "todo" },
-      { id: "4.4", title: "Etapas de obra com progresso físico-financeiro", status: "todo" },
-      { id: "4.5", title: "Dashboard individual por projeto", status: "todo" },
+      { id: "4.1", title: "Lançamentos de entradas e saídas com categorias", status: "done" },
+      { id: "4.2", title: "Upload de comprovantes (Storage) com pré-visualização", status: "done" },
+      { id: "4.3", title: "Orçamento (budget) por projeto e alertas de teto", status: "done" },
+      { id: "4.4", title: "Etapas de obra com progresso físico-financeiro", status: "done" },
+      { id: "4.5", title: "Dashboard individual por projeto", status: "done" },
     ],
   },
   {
