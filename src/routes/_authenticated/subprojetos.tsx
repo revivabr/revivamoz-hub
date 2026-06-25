@@ -170,12 +170,16 @@ function SubprojectsPage() {
                   <CardTitle className="text-base">{p.nome}</CardTitle>
                   <EstadoBadge estado={p.estado} />
                 </div>
+                <div className="flex flex-wrap gap-1 pt-1">
+                  <Badge variant="outline" className="text-[10px]">{TIPO_LABEL[p.tipo]}</Badge>
+                </div>
                 <CardDescription className="line-clamp-2 min-h-[2.5rem]">
                   {p.descricao || "Sem descrição"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1 text-xs text-muted-foreground">
-                Orçamento: <span className="font-medium text-foreground">
+                {p.tipo === "programa_social" ? "Doações mensais" : "Orçamento"}:{" "}
+                <span className="font-medium text-foreground">
                   {Number(p.orcamento).toLocaleString("pt-PT")} {p.moeda}
                 </span>
               </CardContent>
