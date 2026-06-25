@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, Workflow, Wallet, FileBarChart, Settings, Sparkles, Brain, ShieldCheck, X } from "lucide-react";
 import logoUrl from "@/assets/reviva-logo.png";
+
 
 
 
