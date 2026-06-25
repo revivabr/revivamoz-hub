@@ -53,7 +53,7 @@ function AuditoriaPage() {
 
   if (error) {
     return (
-      <div className="p-6">
+      <DashboardLayout title="Auditoria">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-destructive">
@@ -62,7 +62,7 @@ function AuditoriaPage() {
             <CardDescription>{(error as Error).message}</CardDescription>
           </CardHeader>
         </Card>
-      </div>
+      </DashboardLayout>
     );
   }
 
