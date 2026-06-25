@@ -128,8 +128,10 @@ function AuditoriaPage() {
         </CardContent>
       </Card>
     </div>
+    </DashboardLayout>
   );
 }
+
 
 function BackupsCard() {
   const fetchRuns = useServerFn(listBackupRuns);
