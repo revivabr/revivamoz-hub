@@ -67,7 +67,9 @@ function AuditoriaPage() {
   }
 
   return (
-    <div className="space-y-4 p-4 md:p-6">
+    <DashboardLayout title="Auditoria">
+    <div className="space-y-4">
+
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Trilho de Auditoria</h1>
         <p className="text-sm text-muted-foreground">Quem fez o quê e quando — registado automaticamente.</p>
