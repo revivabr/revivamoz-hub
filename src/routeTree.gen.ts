@@ -22,6 +22,7 @@ import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAssistenteRouteImport } from './routes/_authenticated/assistente'
 import { Route as PRelatorioTokenRouteImport } from './routes/p.relatorio.$token'
 import { Route as AuthenticatedProjetosProjetoIdRouteImport } from './routes/_authenticated/projetos.$projetoId'
+import { Route as ApiPublicHooksBackupRouteImport } from './routes/api/public/hooks/backup'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -91,6 +92,11 @@ const AuthenticatedProjetosProjetoIdRoute =
     path: '/projetos/$projetoId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicHooksBackupRoute = ApiPublicHooksBackupRouteImport.update({
+  id: '/api/public/hooks/backup',
+  path: '/api/public/hooks/backup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/subprojetos': typeof AuthenticatedSubprojetosRoute
   '/projetos/$projetoId': typeof AuthenticatedProjetosProjetoIdRoute
   '/p/relatorio/$token': typeof PRelatorioTokenRoute
+  '/api/public/hooks/backup': typeof ApiPublicHooksBackupRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/projetos/$projetoId': typeof AuthenticatedProjetosProjetoIdRoute
   '/p/relatorio/$token': typeof PRelatorioTokenRoute
+  '/api/public/hooks/backup': typeof ApiPublicHooksBackupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -135,6 +143,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/projetos/$projetoId': typeof AuthenticatedProjetosProjetoIdRoute
   '/p/relatorio/$token': typeof PRelatorioTokenRoute
+  '/api/public/hooks/backup': typeof ApiPublicHooksBackupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/subprojetos'
     | '/projetos/$projetoId'
     | '/p/relatorio/$token'
+    | '/api/public/hooks/backup'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/'
     | '/projetos/$projetoId'
     | '/p/relatorio/$token'
+    | '/api/public/hooks/backup'
   id:
     | '__root__'
     | '/_authenticated'
@@ -180,12 +191,14 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/projetos/$projetoId'
     | '/p/relatorio/$token'
+    | '/api/public/hooks/backup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   PRelatorioTokenRoute: typeof PRelatorioTokenRoute
+  ApiPublicHooksBackupRoute: typeof ApiPublicHooksBackupRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -281,6 +294,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjetosProjetoIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/hooks/backup': {
+      id: '/api/public/hooks/backup'
+      path: '/api/public/hooks/backup'
+      fullPath: '/api/public/hooks/backup'
+      preLoaderRoute: typeof ApiPublicHooksBackupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -317,6 +337,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   PRelatorioTokenRoute: PRelatorioTokenRoute,
+  ApiPublicHooksBackupRoute: ApiPublicHooksBackupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
