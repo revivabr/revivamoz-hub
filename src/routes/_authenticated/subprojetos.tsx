@@ -20,6 +20,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { ProjetoLogo, ProjetoLogoUploader } from "@/components/projetos/ProjetoLogo";
+import { sendInviteEmail } from "@/lib/notifications.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/_authenticated/subprojetos")({
   head: () => ({
