@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Settings, Shield, Trash2, UserPlus, KeyRound } from "lucide-react";
+import { Settings, Shield, Trash2, UserPlus, KeyRound, Pencil, Lock, X } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -7,16 +7,18 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { EmptyState } from "@/components/empty-state/EmptyState";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { adminCreateUser, adminSeedGestores, adminListUsers, adminResetPassword } from "@/lib/admin-users.functions";
+import { adminCreateUser, adminSeedGestores, adminListUsers, adminResetPassword, adminUpdateUser, adminDeleteUser } from "@/lib/admin-users.functions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { AiProvedoresCard } from "@/components/configuracoes/AiProvedoresCard";
 import { Mail } from "lucide-react";
 import { testBrevoEmail } from "@/lib/notifications.functions";
+
 
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
