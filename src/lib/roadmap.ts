@@ -71,10 +71,10 @@ export const roadmap: RoadmapPhase[] = [
     title: "Fase 5 — Dashboard Global com Filtros Interativos",
     goal: "Super Admin com visão cruzada de todos os projetos e programas.",
     tasks: [
-      { id: "5.1", title: "Filtros por projeto, programa, período e financiador", status: "todo" },
-      { id: "5.2", title: "Comparativos entre projetos e contra orçamento", status: "todo" },
-      { id: "5.3", title: "Indicadores de saúde financeira (semáforo) por projeto", status: "todo" },
-      { id: "5.4", title: "Drill-down: do KPI global até à transação individual", status: "todo" },
+      { id: "5.1", title: "Filtros por projeto, programa, período e financiador", status: "done" },
+      { id: "5.2", title: "Comparativos entre projetos e contra orçamento", status: "done" },
+      { id: "5.3", title: "Indicadores de saúde financeira (semáforo) por projeto", status: "done" },
+      { id: "5.4", title: "Drill-down: do KPI global até à transação individual", status: "done" },
     ],
   },
   {
