@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/empty-state/EmptyState";
 import { useI18n } from "@/lib/i18n";
 import { useOnboarding } from "@/components/onboarding/OnboardingTour";
 
-export const Route = createFileRoute("/subprojetos")({
+export const Route = createFileRoute("/_authenticated/subprojetos")({
   head: () => ({
     meta: [
       { title: "Subprojetos · Reviva Moz" },

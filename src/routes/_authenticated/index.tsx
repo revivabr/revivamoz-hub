@@ -10,7 +10,7 @@ import { kpis } from "@/lib/mock-data";
 import { formatMZN } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Visão Global · Reviva Moz" },

@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { EmptyState } from "@/components/empty-state/EmptyState";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/fluxo-caixa")({
+export const Route = createFileRoute("/_authenticated/fluxo-caixa")({
   head: () => ({
     meta: [
       { title: "Fluxo de Caixa · Reviva Moz" },
