@@ -36,7 +36,7 @@ type Projeto = {
   nome: string;
   descricao: string | null;
   estado: "planeado" | "ativo" | "pausado" | "concluido" | "cancelado";
-  tipo: "programa_social" | "projeto_sazonal";
+  tipo: "programa_social" | "projeto_sazonal" | "caixa_administrativo";
   orcamento: number;
   moeda: string;
   data_inicio: string | null;
@@ -48,6 +48,7 @@ type Projeto = {
 const TIPO_LABEL: Record<Projeto["tipo"], string> = {
   programa_social: "Programa Social",
   projeto_sazonal: "Projeto Sazonal",
+  caixa_administrativo: "Caixa Administrativo",
 };
 
 type Membro = {
