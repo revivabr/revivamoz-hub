@@ -186,9 +186,8 @@ export const testAiProviderEndpoints = createServerFn({ method: "POST" })
   });
 
 // Assistente — agrega contexto financeiro do utilizador antes de chamar o modelo
+// O provedor/modelo é o que estiver ativo em ai_provedores (configurado pelo Super Admin).
 const AskInput = z.object({
-  provedor: ProvedorEnum,
-  model: z.string().min(1),
   history: z.array(z.object({
     role: z.enum(["user", "assistant"]),
     content: z.string(),
@@ -201,6 +200,17 @@ export const assistenteAsk = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => AskInput.parse(input))
   .handler(async ({ data, context }) => {
     const sb = context.supabase;
+
+    // Provedor ativo (único)
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: ativo, error: provError } = await supabaseAdmin
+      .from("ai_provedores")
+      .select("provedor, default_model, api_key, base_url")
+      .eq("enabled", true)
+      .limit(1)
+      .maybeSingle();
+    if (provError) throw new Error(provError.message);
+    if (!ativo) throw new Error("Nenhum provedor de IA ativo. Peça ao Super Admin para ativar um em Configurações → IA.");
 
     // Projetos visíveis ao utilizador (RLS aplica-se)
     const { data: projetos } = await sb
@@ -222,7 +232,6 @@ export const assistenteAsk = createServerFn({ method: "POST" })
       lancamentos = (lx ?? []) as typeof lancamentos;
     }
 
-    // Resumos por projeto
     const resumo = (projetos ?? []).map((p) => {
       const lx = lancamentos.filter((l) => l.projeto_id === p.id);
       const entradas = lx.filter((l) => l.tipo === "entrada").reduce((a, l) => a + Number(l.valor), 0);
@@ -251,5 +260,13 @@ ${JSON.stringify(lancamentos.slice(0, 100), null, 2)}`;
       { role: "user" as const, content: data.question },
     ];
 
-    return await aiChat({ data: { provedor: data.provedor, model: data.model, messages } });
+    const result = await callAiProvider({
+      provedor: ativo.provedor as Provedor,
+      model: ativo.default_model,
+      messages,
+      apiKey: ativo.api_key,
+      baseUrl: ativo.base_url,
+    });
+    return { content: result.content, provedor: ativo.provedor, model: ativo.default_model };
   });
+
