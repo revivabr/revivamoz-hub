@@ -12,6 +12,7 @@ const dictionaries: Record<Locale, Dict> = {
     "nav.cashflow": "Fluxo de Caixa",
     "nav.reports": "Relatórios",
     "nav.assistant": "Assistente IA",
+    "nav.intelligence": "Inteligência",
     "nav.roadmap": "Roadmap",
     "nav.settings": "Configurações",
     "brand.tagline": "Gestão Financeira",
