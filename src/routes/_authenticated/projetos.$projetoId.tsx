@@ -3,8 +3,10 @@ import { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft, Plus, Trash2, Upload, FileText, AlertTriangle, Layers, Wallet,
-  TrendingUp, TrendingDown, Image as ImageIcon,
+  TrendingUp, TrendingDown, Image as ImageIcon, Download,
 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { exportProjeto } from "@/lib/ops.functions";
 import { toast } from "sonner";
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
