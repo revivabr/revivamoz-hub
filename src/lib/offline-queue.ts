@@ -12,7 +12,7 @@ export type PendingLancamento = {
   descricao?: string | null;
   categoria_id?: string | null;
   etapa_id?: string | null;
-  criado_por: string;
+  created_by: string;
   created_at: string;
 };
 
