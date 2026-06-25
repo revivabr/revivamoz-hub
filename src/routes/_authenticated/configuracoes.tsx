@@ -116,6 +116,7 @@ function SettingsPage() {
     <DashboardLayout title={t("nav.settings")}>
       <div className="space-y-6">
       <CreateUserCard />
+      <BrevoTestCard />
       <AiProvedoresCard />
       <Card>
         <CardHeader>
