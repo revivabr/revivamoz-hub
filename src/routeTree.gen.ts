@@ -17,6 +17,7 @@ import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedFluxoCaixaRouteImport } from './routes/_authenticated/fluxo-caixa'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
+import { Route as AuthenticatedAssistenteRouteImport } from './routes/_authenticated/assistente'
 import { Route as PRelatorioTokenRouteImport } from './routes/p.relatorio.$token'
 import { Route as AuthenticatedProjetosProjetoIdRouteImport } from './routes/_authenticated/projetos.$projetoId'
 
@@ -61,6 +62,11 @@ const AuthenticatedConfiguracoesRoute =
     path: '/configuracoes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAssistenteRoute = AuthenticatedAssistenteRouteImport.update({
+  id: '/assistente',
+  path: '/assistente',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const PRelatorioTokenRoute = PRelatorioTokenRouteImport.update({
   id: '/p/relatorio/$token',
   path: '/p/relatorio/$token',
@@ -76,6 +82,7 @@ const AuthenticatedProjetosProjetoIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/assistente': typeof AuthenticatedAssistenteRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/fluxo-caixa': typeof AuthenticatedFluxoCaixaRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/assistente': typeof AuthenticatedAssistenteRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/fluxo-caixa': typeof AuthenticatedFluxoCaixaRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/assistente': typeof AuthenticatedAssistenteRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/fluxo-caixa': typeof AuthenticatedFluxoCaixaRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/assistente'
     | '/configuracoes'
     | '/fluxo-caixa'
     | '/relatorios'
@@ -123,6 +133,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/assistente'
     | '/configuracoes'
     | '/fluxo-caixa'
     | '/relatorios'
@@ -135,6 +146,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/assistente'
     | '/_authenticated/configuracoes'
     | '/_authenticated/fluxo-caixa'
     | '/_authenticated/relatorios'
@@ -209,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/assistente': {
+      id: '/_authenticated/assistente'
+      path: '/assistente'
+      fullPath: '/assistente'
+      preLoaderRoute: typeof AuthenticatedAssistenteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/p/relatorio/$token': {
       id: '/p/relatorio/$token'
       path: '/p/relatorio/$token'
@@ -227,6 +246,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAssistenteRoute: typeof AuthenticatedAssistenteRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedFluxoCaixaRoute: typeof AuthenticatedFluxoCaixaRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
@@ -237,6 +257,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAssistenteRoute: AuthenticatedAssistenteRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedFluxoCaixaRoute: AuthenticatedFluxoCaixaRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,

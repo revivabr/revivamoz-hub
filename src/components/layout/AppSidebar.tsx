@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Workflow, Wallet, FileBarChart, Settings, Sprout, ListChecks } from "lucide-react";
+import { LayoutDashboard, Workflow, Wallet, FileBarChart, Settings, Sprout, ListChecks, Sparkles } from "lucide-react";
 
 import {
   Sidebar,
@@ -23,6 +23,7 @@ export function AppSidebar() {
     { titleKey: "nav.subprojects", url: "/subprojetos", icon: Workflow },
     { titleKey: "nav.cashflow", url: "/fluxo-caixa", icon: Wallet },
     { titleKey: "nav.reports", url: "/relatorios", icon: FileBarChart },
+    { titleKey: "nav.assistant", url: "/assistente", icon: Sparkles },
     { titleKey: "nav.roadmap", url: "/roadmap", icon: ListChecks },
     { titleKey: "nav.settings", url: "/configuracoes", icon: Settings },
   ] as const;
