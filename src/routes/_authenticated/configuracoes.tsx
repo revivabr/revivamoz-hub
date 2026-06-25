@@ -7,7 +7,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { EmptyState } from "@/components/empty-state/EmptyState";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { adminCreateUser, adminSeedGestores } from "@/lib/admin-users.functions";
+import { adminCreateUser, adminSeedGestores, adminListUsers, adminResetPassword } from "@/lib/admin-users.functions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -116,6 +116,7 @@ function SettingsPage() {
     <DashboardLayout title={t("nav.settings")}>
       <div className="space-y-6">
       <CreateUserCard />
+      <UsersListCard />
       <SeedGestoresCard />
       <BrevoTestCard />
       <AiProvedoresCard />
@@ -390,3 +391,92 @@ function SeedGestoresCard() {
 
 
 
+
+function UsersListCard() {
+  const queryClient = useQueryClient();
+  const listUsers = useServerFn(adminListUsers);
+  const resetPwd = useServerFn(adminResetPassword);
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ["admin-users"],
+    queryFn: () => listUsers(),
+  });
+
+  const reset = useMutation({
+    mutationFn: (vars: { userId: string; password: string }) => resetPwd({ data: vars }),
+    onSuccess: () => { toast.success("Palavra-passe redefinida."); queryClient.invalidateQueries({ queryKey: ["admin-users"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5" /> Utilizadores</CardTitle>
+        <CardDescription>
+          Lista de utilizadores, projetos associados e respetivos papéis. Use "Redefinir" para
+          atribuir uma nova palavra-passe.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">A carregar…</p>
+        ) : users.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Sem utilizadores.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs text-muted-foreground">
+                <tr>
+                  <th className="py-2 pr-3">Email</th>
+                  <th className="py-2 pr-3">Nome</th>
+                  <th className="py-2 pr-3">Projeto · Papel</th>
+                  <th className="py-2 pr-3">Último login</th>
+                  <th className="py-2 pr-3">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {users.map((u) => (
+                  <tr key={u.id} className="align-top">
+                    <td className="py-2 pr-3 font-mono text-xs">{u.email}</td>
+                    <td className="py-2 pr-3">{u.fullName || "—"}</td>
+                    <td className="py-2 pr-3">
+                      {u.membros.length === 0 ? (
+                        <span className="text-muted-foreground">—</span>
+                      ) : (
+                        <div className="flex flex-col gap-1">
+                          {u.membros.map((m, i) => (
+                            <div key={i} className="flex items-center gap-2">
+                              <span>{m.projeto}</span>
+                              <Badge variant="secondary" className="text-[10px]">{m.papel}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-2 pr-3 text-xs text-muted-foreground">
+                      {u.lastSignInAt ? new Date(u.lastSignInAt).toLocaleString("pt-PT") : "Nunca"}
+                    </td>
+                    <td className="py-2 pr-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const pwd = window.prompt(`Nova palavra-passe para ${u.email} (mín. 6 chars):`);
+                          if (!pwd) return;
+                          if (pwd.length < 6) { toast.error("Mínimo 6 caracteres."); return; }
+                          reset.mutate({ userId: u.id, password: pwd });
+                        }}
+                        disabled={reset.isPending}
+                      >
+                        <KeyRound className="mr-2 h-3.5 w-3.5" /> Redefinir
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

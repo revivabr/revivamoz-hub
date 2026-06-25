@@ -20,6 +20,11 @@ const seedSchema = z.object({
   })).min(1).max(50),
 });
 
+const resetPasswordSchema = z.object({
+  userId: z.string().uuid(),
+  password: z.string().min(6),
+});
+
 export const adminCreateUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => createUserSchema.parse(data))
@@ -98,4 +103,56 @@ export const adminSeedGestores = createServerFn({ method: "POST" })
       }
     }
     return { results };
+  });
+
+export const adminListUsers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId, _role: "super_admin",
+    });
+    if (!isAdmin) throw new Error("Apenas Super Admins.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
+    if (error) throw new Error(error.message);
+
+    const ids = list.users.map((u) => u.id);
+    const { data: membros } = await supabaseAdmin
+      .from("projeto_membros")
+      .select("user_id, papel, projeto_id, projetos(nome)")
+      .in("user_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
+
+    const byUser = new Map<string, Array<{ projeto: string; papel: string }>>();
+    for (const m of (membros ?? []) as any[]) {
+      const arr = byUser.get(m.user_id) ?? [];
+      arr.push({ projeto: m.projetos?.nome ?? "—", papel: m.papel });
+      byUser.set(m.user_id, arr);
+    }
+
+    return list.users.map((u) => ({
+      id: u.id,
+      email: u.email ?? "",
+      fullName: (u.user_metadata as any)?.full_name ?? "",
+      createdAt: u.created_at,
+      lastSignInAt: u.last_sign_in_at,
+      membros: byUser.get(u.id) ?? [],
+    }));
+  });
+
+export const adminResetPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => resetPasswordSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId, _role: "super_admin",
+    });
+    if (!isAdmin) throw new Error("Apenas Super Admins.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+      password: data.password,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
