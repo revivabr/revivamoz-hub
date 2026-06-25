@@ -20,6 +20,51 @@ export function AppHeader({ title }: { title: string }) {
   const { theme, toggle } = useTheme();
   const { t, locale, setLocale } = useI18n();
   const { open: openTour } = useOnboarding();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [profile, setProfile] = useState<{ name: string; email: string; avatar?: string | null }>({
+    name: "",
+    email: "",
+  });
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+      if (!user) return;
+      const { data: p } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!active) return;
+      setProfile({
+        name: p?.full_name || user.email?.split("@")[0] || "Utilizador",
+        email: user.email ?? "",
+        avatar: p?.avatar_url,
+      });
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function handleSignOut() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  }
+
+  const initials = profile.name
+    .split(" ")
+    .map((s) => s[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "U";
+
 
   return (
     <header className="sticky top-0 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-card px-4 py-3 sm:gap-4 sm:px-6">
