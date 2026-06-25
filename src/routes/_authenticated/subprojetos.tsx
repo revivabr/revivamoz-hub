@@ -156,6 +156,9 @@ function SubprojectsPage() {
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {projetos.map((p) => (
             <Card key={p.id} className="flex h-full flex-col transition hover:border-primary/60">
+              <div className="p-3 pb-0">
+                <ProjetoLogo projetoId={p.id} nome={p.nome} logoPath={p.logo_path} />
+              </div>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-base">{p.nome}</CardTitle>
