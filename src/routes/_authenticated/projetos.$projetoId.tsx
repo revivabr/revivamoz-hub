@@ -23,6 +23,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { ProjetoLogo, ProjetoLogoUploader } from "@/components/projetos/ProjetoLogo";
 
 export const Route = createFileRoute("/_authenticated/projetos/$projetoId")({
   head: () => ({
