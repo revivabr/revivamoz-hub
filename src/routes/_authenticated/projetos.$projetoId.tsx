@@ -20,6 +20,7 @@ import { ProjetoKpiCard } from "@/components/projetos/ProjetoKpiCard";
 import { NovoLancamentoDialog } from "@/components/projetos/NovoLancamentoDialog";
 import { LancamentosLista } from "@/components/projetos/LancamentosLista";
 import { EtapasSection } from "@/components/projetos/EtapasSection";
+import { CategoriaPies } from "@/components/projetos/CategoriaPies";
 
 import { exportProjeto } from "@/lib/ops.functions";
 import { projetoQuery, lancamentosQuery, etapasQuery, categoriasQuery } from "@/lib/projetos/queries";
