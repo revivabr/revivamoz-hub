@@ -36,12 +36,18 @@ type Projeto = {
   nome: string;
   descricao: string | null;
   estado: "planeado" | "ativo" | "pausado" | "concluido" | "cancelado";
+  tipo: "programa_social" | "projeto_sazonal";
   orcamento: number;
   moeda: string;
   data_inicio: string | null;
   data_fim: string | null;
   created_by: string;
   logo_path: string | null;
+};
+
+const TIPO_LABEL: Record<Projeto["tipo"], string> = {
+  programa_social: "Programa Social",
+  projeto_sazonal: "Projeto Sazonal",
 };
 
 type Membro = {
@@ -107,7 +113,7 @@ function SubprojectsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projetos")
-        .select("id,nome,descricao,estado,orcamento,moeda,data_inicio,data_fim,created_by,logo_path")
+        .select("id,nome,descricao,estado,tipo,orcamento,moeda,data_inicio,data_fim,created_by,logo_path")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Projeto[];
@@ -164,12 +170,16 @@ function SubprojectsPage() {
                   <CardTitle className="text-base">{p.nome}</CardTitle>
                   <EstadoBadge estado={p.estado} />
                 </div>
+                <div className="flex flex-wrap gap-1 pt-1">
+                  <Badge variant="outline" className="text-[10px]">{TIPO_LABEL[p.tipo]}</Badge>
+                </div>
                 <CardDescription className="line-clamp-2 min-h-[2.5rem]">
                   {p.descricao || "Sem descrição"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1 text-xs text-muted-foreground">
-                Orçamento: <span className="font-medium text-foreground">
+                {p.tipo === "programa_social" ? "Doações mensais" : "Orçamento"}:{" "}
+                <span className="font-medium text-foreground">
                   {Number(p.orcamento).toLocaleString("pt-PT")} {p.moeda}
                 </span>
               </CardContent>
@@ -215,7 +225,9 @@ function CreateProjetoDialog({
   onClose, onCreated, userId,
 }: { onClose: () => void; onCreated: () => void; userId: string }) {
   const [form, setForm] = useState({
-    nome: "", descricao: "", estado: "planeado" as Projeto["estado"],
+    nome: "", descricao: "",
+    tipo: "projeto_sazonal" as Projeto["tipo"],
+    estado: "planeado" as Projeto["estado"],
     orcamento: "0", moeda: "MZN",
   });
   const mutation = useMutation({
@@ -225,6 +237,7 @@ function CreateProjetoDialog({
         .insert({
           nome: form.nome.trim(),
           descricao: form.descricao.trim() || null,
+          tipo: form.tipo,
           estado: form.estado,
           orcamento: Number(form.orcamento) || 0,
           moeda: form.moeda,
@@ -260,6 +273,21 @@ function CreateProjetoDialog({
         <div className="space-y-1">
           <Label>Descrição</Label>
           <Textarea rows={3} value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} />
+        </div>
+        <div className="space-y-1">
+          <Label>Categoria</Label>
+          <Select value={form.tipo} onValueChange={(v) => setForm({ ...form, tipo: v as Projeto["tipo"] })}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="programa_social">Programa Social (doações mensais)</SelectItem>
+              <SelectItem value="projeto_sazonal">Projeto Sazonal (orçamento fixo)</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            {form.tipo === "programa_social"
+              ? "Recebe doações recorrentes para mantimento contínuo."
+              : "Orçamento fixo com prazo de início e fim; despesas subtraem do total."}
+          </p>
         </div>
         <div className="grid grid-cols-3 gap-2">
           <div className="space-y-1">
