@@ -106,7 +106,7 @@ function SubprojectsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projetos")
-        .select("id,nome,descricao,estado,orcamento,moeda,data_inicio,data_fim,created_by")
+        .select("id,nome,descricao,estado,orcamento,moeda,data_inicio,data_fim,created_by,logo_path")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Projeto[];
