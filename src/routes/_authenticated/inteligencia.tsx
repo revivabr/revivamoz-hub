@@ -149,7 +149,7 @@ function InteligenciaPage() {
       const pct = saidasTotal > 0 ? (valor / saidasTotal) * 100 : 0;
       if (pct > 35) sugestoes.push(`A categoria "${nome}" representa ${pct.toFixed(1)}% das despesas — avalie renegociar ou redistribuir.`);
     }
-    if (a < 0 && saldo > 0) sugestoes.push("Tendência de saldo mensal a descer. Reforce captação de doações ou reduza saídas recorrentes.");
+    if (fit.a < 0 && saldo > 0) sugestoes.push("Tendência de saldo mensal a descer. Reforce captação de doações ou reduza saídas recorrentes.");
     if (sugestoes.length === 0) sugestoes.push("Sem alertas relevantes. Continue a monitorizar o consumo mensal.");
 
     return { previsao, anomalias, sugestoes, kpis: { entradas, saidas: saidasTotal, saldo } };
