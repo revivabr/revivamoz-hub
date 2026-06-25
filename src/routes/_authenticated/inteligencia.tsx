@@ -109,21 +109,19 @@ function InteligenciaPage() {
     }));
 
     // Previsão linear próximos 3 meses
-    const { a, b } = linearRegression(series.map((s) => ({ x: s.x, y: s.valor })));
+    const fit = linearRegression(series.map((s) => ({ x: s.x, y: s.valor })));
     const ultimoYm = meses[meses.length - 1];
     const futuros = [1, 2, 3].map((k) => ({
       ym: addMonths(ultimoYm, k),
       x: series.length - 1 + k,
-      valor: a * (series.length - 1 + k) + b,
+      valor: predict(fit, series.length - 1 + k),
       tipo: "previsto" as const,
     }));
     const previsao = [...series.map(({ ym, valor, tipo }) => ({ ym, valor, tipo })), ...futuros.map(({ ym, valor, tipo }) => ({ ym, valor, tipo }))];
 
     // Anomalias: z-score em saídas
     const saidas = lancamentos.filter((l) => l.tipo === "saida");
-    const valores = saidas.map((l) => Number(l.valor));
-    const media = valores.reduce((s, v) => s + v, 0) / (valores.length || 1);
-    const desvio = Math.sqrt(valores.reduce((s, v) => s + (v - media) ** 2, 0) / (valores.length || 1));
+    const { mean: media, stddev: desvio } = meanStddev(saidas.map((l) => Number(l.valor)));
     const anomalias = desvio > 0
       ? saidas.filter((l) => (Number(l.valor) - media) / desvio > 2).sort((x, y) => Number(y.valor) - Number(x.valor)).slice(0, 8)
       : [];
