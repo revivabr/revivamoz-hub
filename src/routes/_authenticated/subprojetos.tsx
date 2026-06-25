@@ -40,6 +40,7 @@ type Projeto = {
   data_inicio: string | null;
   data_fim: string | null;
   created_by: string;
+  logo_path: string | null;
 };
 
 type Membro = {
