@@ -130,6 +130,7 @@ export function AppHeader({ title }: { title: string }) {
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </button>
 
+        <OfflineBadge />
         <NotificationsBell />
 
         <DropdownMenu>
