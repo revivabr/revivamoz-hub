@@ -54,7 +54,7 @@ export function AiProvedoresCard() {
   });
 
   const upsert = useMutation({
-    mutationFn: async (row: Partial<Row> & { provedor: Provedor }) => {
+    mutationFn: async (row: { provedor: Provedor; api_key: string; default_model: string; enabled: boolean }) => {
       const { error } = await supabase.from("ai_provedores").upsert(row, { onConflict: "provedor" });
       if (error) throw error;
     },
@@ -63,6 +63,18 @@ export function AiProvedoresCard() {
       qc.invalidateQueries({ queryKey: ["ai-provedores"] });
       qc.invalidateQueries({ queryKey: ["ai-provedores-publico"] });
       setApiKey("");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const toggle = useMutation({
+    mutationFn: async ({ provedor, enabled }: { provedor: Provedor; enabled: boolean }) => {
+      const { error } = await supabase.from("ai_provedores").update({ enabled }).eq("provedor", provedor);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["ai-provedores"] });
+      qc.invalidateQueries({ queryKey: ["ai-provedores-publico"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
