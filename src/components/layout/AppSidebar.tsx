@@ -1,6 +1,10 @@
+import { useEffect } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Workflow, Wallet, FileBarChart, Settings, Sparkles, Brain, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Workflow, Wallet, FileBarChart, Settings, Sparkles, Brain, ShieldCheck, X } from "lucide-react";
 import logoUrl from "@/assets/reviva-logo.png";
+
+
+
 
 import {
   Sidebar,
@@ -12,12 +16,20 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useI18n } from "@/lib/i18n";
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { t } = useI18n();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  useEffect(() => {
+    if (isMobile) setOpenMobile(false);
+  }, [pathname, isMobile, setOpenMobile]);
+
+
 
   const items = [
     { titleKey: "nav.overview", url: "/", icon: LayoutDashboard },
@@ -37,7 +49,7 @@ export function AppSidebar() {
           <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-white">
             <img src={logoUrl} alt="Reviva Moz" className="h-full w-full object-cover" />
           </div>
-          <div className="min-w-0 group-data-[collapsible=icon]:hidden">
+          <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
             <div className="truncate text-sm font-bold tracking-tight text-sidebar-foreground">
               Reviva Moz
             </div>
@@ -45,7 +57,18 @@ export function AppSidebar() {
               {t("brand.tagline")}
             </div>
           </div>
+          {isMobile ? (
+            <button
+              type="button"
+              onClick={() => setOpenMobile(false)}
+              aria-label="Fechar menu"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-sidebar-foreground/80 transition hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          ) : null}
         </div>
+
       </SidebarHeader>
 
       <SidebarContent>
