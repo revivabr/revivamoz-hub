@@ -47,17 +47,16 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-md space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
-        <div className="flex justify-end">
-          <div className="inline-block text-left">
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">RevivaMoz</h1>
-              <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-white">
-                <img src={logoUrl} alt="RevivaMoz" className="h-full w-full object-cover" />
-              </div>
-            </div>
+        <div className="flex items-center gap-4">
+          <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-white">
+            <img src={logoUrl} alt="RevivaMoz" className="h-full w-full object-cover" />
+          </div>
+          <div className="text-left">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">RevivaMoz</h1>
             <p className="mt-1 text-sm text-muted-foreground">Gestão Financeira</p>
           </div>
         </div>
+
 
         <form onSubmit={handleSignIn} className="space-y-4">
           <div className="space-y-2">
