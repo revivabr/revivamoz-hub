@@ -1,17 +1,23 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Sparkles, Save, Trash2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { testAiProviderEndpoints } from "@/lib/ai.functions";
 import { toast } from "sonner";
 
-import { MODELOS_POR_PROVEDOR, PROVEDOR_LABEL, type ProvedorTipo as Provedor } from "@/lib/ai-models";
+import {
+  MODELOS_POR_PROVEDOR,
+  PROVEDOR_LABEL,
+  modelValueForProvider,
+  type ProvedorTipo as Provedor,
+} from "@/lib/ai-models";
 
 const PROVEDOR_INFO: Record<Provedor, { label: string; defaultModel: string; models: string[]; help: string }> = {
   openai: {
@@ -38,6 +44,7 @@ type Row = { provedor: Provedor; api_key: string; default_model: string; base_ur
 
 export function AiProvedoresCard() {
   const qc = useQueryClient();
+  const testEndpoint = useServerFn(testAiProviderEndpoints);
   const [novo, setNovo] = useState<Provedor>("openai");
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState(PROVEDOR_INFO.openai.defaultModel);
@@ -49,7 +56,10 @@ export function AiProvedoresCard() {
         .from("ai_provedores")
         .select("provedor, api_key, default_model, base_url, enabled");
       if (error) throw error;
-      return (data ?? []) as Row[];
+      return ((data ?? []) as Row[]).map((row) => ({
+        ...row,
+        default_model: modelValueForProvider(row.provedor, row.default_model),
+      }));
     },
   });
 
@@ -91,6 +101,16 @@ export function AiProvedoresCard() {
     },
   });
 
+  const endpointTest = useMutation({
+    mutationFn: async (provedor: Provedor) => testEndpoint({ data: { provedor } }),
+    onSuccess: (result) => {
+      toast.success(`Endpoint validado: ${result.model} (${result.flavor})`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const saveModel = modelValueForProvider(novo, model);
+
   return (
     <Card>
       <CardHeader>
@@ -102,11 +122,11 @@ export function AiProvedoresCard() {
       </CardHeader>
       <CardContent className="space-y-6">
         <form
-          className="grid gap-3 sm:grid-cols-[160px_1fr_200px_auto]"
+          className="grid gap-3 sm:grid-cols-[160px_1fr_280px_auto]"
           onSubmit={(e) => {
             e.preventDefault();
             if (!apiKey.trim()) return;
-            upsert.mutate({ provedor: novo, api_key: apiKey.trim(), default_model: model, enabled: true });
+            upsert.mutate({ provedor: novo, api_key: apiKey.trim(), default_model: saveModel, enabled: true });
           }}
         >
           <div className="space-y-1">
@@ -126,15 +146,20 @@ export function AiProvedoresCard() {
           </div>
           <div className="space-y-1">
             <Label>API Key</Label>
-            <Input type="password" required value={apiKey} onChange={(e) => setApiKey(e.target.value)}
+            <input type="password" required value={apiKey} onChange={(e) => setApiKey(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder={PROVEDOR_INFO[novo].help} />
           </div>
           <div className="space-y-1">
             <Label>Modelo por defeito</Label>
-            <Input value={model} onChange={(e) => setModel(e.target.value)} list={`models-${novo}`} />
-            <datalist id={`models-${novo}`}>
-              {PROVEDOR_INFO[novo].models.map((m) => <option key={m} value={m} />)}
-            </datalist>
+            <Select value={saveModel} onValueChange={setModel}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {PROVEDOR_INFO[novo].models.map((m) => (
+                  <SelectItem key={m} value={m}>{m}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex items-end">
             <Button type="submit" disabled={upsert.isPending}>
@@ -162,6 +187,14 @@ export function AiProvedoresCard() {
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => endpointTest.mutate(p.provedor)}
+                      disabled={endpointTest.isPending}
+                    >
+                      Testar endpoint
+                    </Button>
                     <Switch
                       checked={p.enabled}
                       onCheckedChange={(v) => toggle.mutate({ provedor: p.provedor, enabled: v })}

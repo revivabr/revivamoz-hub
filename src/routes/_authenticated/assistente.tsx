@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { assistenteAsk } from "@/lib/ai.functions";
-import { MODELOS_POR_PROVEDOR, PROVEDOR_LABEL, type ProvedorTipo } from "@/lib/ai-models";
+import { PROVEDOR_LABEL, modelOptionsForProvider, modelValueForProvider, type ProvedorTipo } from "@/lib/ai-models";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/assistente")({
@@ -39,7 +39,10 @@ function AssistentePage() {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("list_ai_provedores_publico");
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []).map((row) => ({
+        ...row,
+        default_model: modelValueForProvider(row.provedor as ProvedorTipo, row.default_model),
+      }));
     },
   });
 
@@ -108,7 +111,7 @@ function AssistentePage() {
           <Select value={model} onValueChange={setModel} disabled={!provedor}>
             <SelectTrigger className="w-64"><SelectValue placeholder="Modelo" /></SelectTrigger>
             <SelectContent>
-              {(provedor ? MODELOS_POR_PROVEDOR[provedor as ProvedorTipo] : []).map((m) => (
+              {(provedor ? modelOptionsForProvider(provedor as ProvedorTipo, model) : []).map((m) => (
                 <SelectItem key={m} value={m}>{m}</SelectItem>
               ))}
             </SelectContent>
