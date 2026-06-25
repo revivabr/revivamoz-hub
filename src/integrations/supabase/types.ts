@@ -14,16 +14,164 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          language: string
+          phone: string | null
+          position: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          language?: string
+          phone?: string | null
+          position?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          language?: string
+          phone?: string | null
+          position?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      projeto_membros: {
+        Row: {
+          created_at: string
+          id: string
+          papel: Database["public"]["Enums"]["projeto_papel"]
+          projeto_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          papel?: Database["public"]["Enums"]["projeto_papel"]
+          projeto_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          papel?: Database["public"]["Enums"]["projeto_papel"]
+          projeto_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projeto_membros_projeto_id_fkey"
+            columns: ["projeto_id"]
+            isOneToOne: false
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projetos: {
+        Row: {
+          created_at: string
+          created_by: string
+          data_fim: string | null
+          data_inicio: string | null
+          descricao: string | null
+          estado: Database["public"]["Enums"]["projeto_estado"]
+          id: string
+          moeda: string
+          nome: string
+          orcamento: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          data_fim?: string | null
+          data_inicio?: string | null
+          descricao?: string | null
+          estado?: Database["public"]["Enums"]["projeto_estado"]
+          id?: string
+          moeda?: string
+          nome: string
+          orcamento?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          data_fim?: string | null
+          data_inicio?: string | null
+          descricao?: string | null
+          estado?: Database["public"]["Enums"]["projeto_estado"]
+          id?: string
+          moeda?: string
+          nome?: string
+          orcamento?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_projeto_gestor: {
+        Args: { _projeto_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_projeto_member: {
+        Args: { _projeto_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "super_admin" | "gestor" | "financiador"
+      projeto_estado:
+        | "planeado"
+        | "ativo"
+        | "pausado"
+        | "concluido"
+        | "cancelado"
+      projeto_papel: "gestor" | "financiador" | "leitor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +298,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["super_admin", "gestor", "financiador"],
+      projeto_estado: [
+        "planeado",
+        "ativo",
+        "pausado",
+        "concluido",
+        "cancelado",
+      ],
+      projeto_papel: ["gestor", "financiador", "leitor"],
+    },
   },
 } as const
