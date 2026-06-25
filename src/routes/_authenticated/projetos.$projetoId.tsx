@@ -20,6 +20,7 @@ import { ProjetoKpiCard } from "@/components/projetos/ProjetoKpiCard";
 import { NovoLancamentoDialog } from "@/components/projetos/NovoLancamentoDialog";
 import { LancamentosLista } from "@/components/projetos/LancamentosLista";
 import { EtapasSection } from "@/components/projetos/EtapasSection";
+import { CategoriaPies } from "@/components/projetos/CategoriaPies";
 
 import { exportProjeto } from "@/lib/ops.functions";
 import { projetoQuery, lancamentosQuery, etapasQuery, categoriasQuery } from "@/lib/projetos/queries";
@@ -127,7 +128,7 @@ function ProjetoDashboard() {
         </div>
       </div>
 
-      <div className="mb-4 grid gap-4 md:grid-cols-[280px_1fr] md:items-start">
+      <div className="mb-4 grid gap-4 md:grid-cols-[480px_1fr] md:items-start">
         <div className="space-y-2">
           {isGestor ? (
             <ProjetoLogoUploader
@@ -144,6 +145,7 @@ function ProjetoDashboard() {
           <p className="text-sm text-muted-foreground">{projeto.descricao}</p>
         )}
       </div>
+
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <ProjetoKpiCard label="Entradas" value={fmt(totals.entradas)} icon={TrendingUp} tone="ok" />
@@ -167,6 +169,10 @@ function ProjetoDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <CategoriaPies lancamentos={lancamentos} categorias={categorias} fmt={fmt} />
+
+
 
       <Tabs defaultValue="lancamentos" className="mt-6">
         <TabsList>
