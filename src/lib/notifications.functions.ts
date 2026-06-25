@@ -142,3 +142,28 @@ export const testBrevoEmail = createServerFn({ method: "POST" })
     if (!res.ok) throw new Error(res.error ?? "Falha no envio");
     return res;
   });
+
+export const sendInviteEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      email: z.string().email(),
+      projetoNome: z.string(),
+      papel: z.string(),
+    }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const link = "https://revivamoz-hub.lovable.app/auth";
+    const res = await sendBrevoEmail({
+      to: [{ email: data.email }],
+      subject: `Convite para o projeto ${data.projetoNome}`,
+      htmlContent: wrapHtml(
+        `Foi convidado para "${data.projetoNome}"`,
+        `Foi adicionado como <strong>${data.papel}</strong> no projeto <strong>${data.projetoNome}</strong> no Reviva Moz. Inicie sessão com este e-mail para aceder.`,
+        link,
+      ),
+    });
+    if (!res.ok) throw new Error(res.error ?? "Falha no envio");
+    return res;
+  });
+
