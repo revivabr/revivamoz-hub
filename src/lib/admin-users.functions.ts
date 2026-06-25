@@ -25,6 +25,17 @@ const resetPasswordSchema = z.object({
   password: z.string().min(6),
 });
 
+const updateUserSchema = z.object({
+  userId: z.string().uuid(),
+  fullName: z.string().trim().min(1),
+  projetoId: z.string().uuid(),
+  papel: z.enum(["gestor", "financiador", "leitor"]),
+});
+
+const deleteUserSchema = z.object({
+  userId: z.string().uuid(),
+});
+
 export const adminCreateUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => createUserSchema.parse(data))
