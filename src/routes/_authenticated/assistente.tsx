@@ -8,10 +8,10 @@ import { EmptyState } from "@/components/empty-state/EmptyState";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { assistenteAsk } from "@/lib/ai.functions";
-import { PROVEDOR_LABEL, modelOptionsForProvider, modelValueForProvider, type ProvedorTipo } from "@/lib/ai-models";
+import { PROVEDOR_LABEL, type ProvedorTipo } from "@/lib/ai-models";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/assistente")({
@@ -30,8 +30,6 @@ function AssistentePage() {
   const ask = useServerFn(assistenteAsk);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
-  const [provedor, setProvedor] = useState<"openai" | "gemini" | "opencode_go" | "">("");
-  const [model, setModel] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { data: provedores = [] } = useQuery({
@@ -39,29 +37,18 @@ function AssistentePage() {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("list_ai_provedores_publico");
       if (error) throw error;
-      return (data ?? []).map((row) => ({
-        ...row,
-        default_model: modelValueForProvider(row.provedor as ProvedorTipo, row.default_model),
-      }));
+      return data ?? [];
     },
   });
 
-  useEffect(() => {
-    if (!provedor && provedores.length > 0) {
-      setProvedor(provedores[0].provedor as typeof provedor);
-      setModel(provedores[0].default_model);
-    }
-  }, [provedores, provedor]);
+  const ativo = provedores[0];
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
   const mutation = useMutation({
-    mutationFn: async (question: string) => {
-      if (!provedor || !model) throw new Error("Selecione um provedor de IA.");
-      return ask({ data: { provedor, model, history: messages, question } });
-    },
+    mutationFn: async (question: string) => ask({ data: { history: messages, question } }),
     onSuccess: (res) => setMessages((m) => [...m, { role: "assistant", content: res.content }]),
     onError: (e: Error) => {
       toast.error(e.message);
@@ -78,13 +65,13 @@ function AssistentePage() {
     mutation.mutate(q);
   };
 
-  if (provedores.length === 0) {
+  if (!ativo) {
     return (
       <DashboardLayout title="Assistente IA">
         <EmptyState
           icon={Sparkles}
-          title="Nenhum provedor de IA configurado"
-          description="Peça ao Super Admin para configurar um provedor (OpenAI, Gemini ou Opencode-Go) em Configurações → IA."
+          title="Nenhum provedor de IA ativo"
+          description="Peça ao Super Admin para ativar um provedor (OpenAI, Gemini ou Opencode-Go) em Configurações → IA."
         />
       </DashboardLayout>
     );
@@ -93,29 +80,11 @@ function AssistentePage() {
   return (
     <DashboardLayout title="Assistente IA">
       <div className="flex h-[calc(100vh-12rem)] flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <Select value={provedor} onValueChange={(v) => {
-            const p = provedores.find((x) => x.provedor === v);
-            setProvedor(v as typeof provedor);
-            if (p) setModel(p.default_model);
-          }}>
-            <SelectTrigger className="w-48"><SelectValue placeholder="Provedor" /></SelectTrigger>
-            <SelectContent>
-              {provedores.map((p) => (
-                <SelectItem key={p.provedor} value={p.provedor}>
-                  {PROVEDOR_LABEL[p.provedor as ProvedorTipo] ?? p.provedor}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={model} onValueChange={setModel} disabled={!provedor}>
-            <SelectTrigger className="w-64"><SelectValue placeholder="Modelo" /></SelectTrigger>
-            <SelectContent>
-              {(provedor ? modelOptionsForProvider(provedor as ProvedorTipo, model) : []).map((m) => (
-                <SelectItem key={m} value={m}>{m}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <span>Provedor ativo:</span>
+          <Badge variant="secondary">
+            {PROVEDOR_LABEL[ativo.provedor as ProvedorTipo] ?? ativo.provedor} · {ativo.default_model}
+          </Badge>
         </div>
 
         <Card className="flex-1 overflow-hidden">

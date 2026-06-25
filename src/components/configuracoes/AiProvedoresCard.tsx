@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Sparkles, Save, Trash2 } from "lucide-react";
@@ -63,10 +63,33 @@ export function AiProvedoresCard() {
     },
   });
 
+  const existing = provedores.find((p) => p.provedor === novo);
+
+  // Quando muda o provedor selecionado, pré-preenche o modelo com o atual (se existir)
+  useEffect(() => {
+    setModel(existing?.default_model ?? PROVEDOR_INFO[novo].defaultModel);
+    setApiKey("");
+  }, [novo, existing?.default_model]);
+
   const upsert = useMutation({
-    mutationFn: async (row: { provedor: Provedor; api_key: string; default_model: string; enabled: boolean }) => {
-      const { error } = await supabase.from("ai_provedores").upsert(row, { onConflict: "provedor" });
-      if (error) throw error;
+    mutationFn: async (args: { provedor: Provedor; api_key?: string; default_model: string }) => {
+      const existsRow = provedores.find((p) => p.provedor === args.provedor);
+      if (existsRow) {
+        // Update — só atualiza a chave se foi fornecida
+        const patch: { default_model: string; api_key?: string } = { default_model: args.default_model };
+        if (args.api_key) patch.api_key = args.api_key;
+        const { error } = await supabase.from("ai_provedores").update(patch).eq("provedor", args.provedor);
+        if (error) throw error;
+      } else {
+        if (!args.api_key) throw new Error("API Key obrigatória ao criar um novo provedor.");
+        const { error } = await supabase.from("ai_provedores").insert({
+          provedor: args.provedor,
+          api_key: args.api_key,
+          default_model: args.default_model,
+          enabled: false,
+        });
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       toast.success("Provedor guardado.");
@@ -77,8 +100,13 @@ export function AiProvedoresCard() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Ativar um provedor desativa os outros (exclusividade)
   const toggle = useMutation({
     mutationFn: async ({ provedor, enabled }: { provedor: Provedor; enabled: boolean }) => {
+      if (enabled) {
+        const { error: e1 } = await supabase.from("ai_provedores").update({ enabled: false }).neq("provedor", provedor);
+        if (e1) throw e1;
+      }
       const { error } = await supabase.from("ai_provedores").update({ enabled }).eq("provedor", provedor);
       if (error) throw error;
     },
@@ -110,14 +138,16 @@ export function AiProvedoresCard() {
   });
 
   const saveModel = modelValueForProvider(novo, model);
+  const isEditing = !!existing;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5" /> Provedores de IA</CardTitle>
         <CardDescription>
-          Configure as chaves dos provedores externos. Cada utilizador pode então usar o Assistente IA
-          com qualquer provedor ativo. As chaves nunca são expostas ao browser.
+          Configure as chaves dos provedores externos. A API Key é guardada uma única vez; pode alterar
+          o modelo padrão a qualquer momento sem reinserir a chave. Apenas um provedor pode estar ativo
+          de cada vez — ativar um desativa automaticamente os restantes.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -125,17 +155,20 @@ export function AiProvedoresCard() {
           className="grid gap-3 sm:grid-cols-[160px_1fr_280px_auto]"
           onSubmit={(e) => {
             e.preventDefault();
-            if (!apiKey.trim()) return;
-            upsert.mutate({ provedor: novo, api_key: apiKey.trim(), default_model: saveModel, enabled: true });
+            if (!isEditing && !apiKey.trim()) {
+              toast.error("Insira a API Key para registar este provedor.");
+              return;
+            }
+            upsert.mutate({
+              provedor: novo,
+              api_key: apiKey.trim() || undefined,
+              default_model: saveModel,
+            });
           }}
         >
           <div className="space-y-1">
             <Label>Provedor</Label>
-            <Select value={novo} onValueChange={(v) => {
-              const p = v as Provedor;
-              setNovo(p);
-              setModel(PROVEDOR_INFO[p].defaultModel);
-            }}>
+            <Select value={novo} onValueChange={(v) => setNovo(v as Provedor)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {(Object.keys(PROVEDOR_INFO) as Provedor[]).map((p) => (
@@ -145,10 +178,14 @@ export function AiProvedoresCard() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label>API Key</Label>
-            <input type="password" required value={apiKey} onChange={(e) => setApiKey(e.target.value)}
+            <Label>API Key {isEditing && <span className="text-xs text-muted-foreground">(opcional — deixe vazio para manter)</span>}</Label>
+            <input
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder={PROVEDOR_INFO[novo].help} />
+              placeholder={isEditing ? `••••${existing!.api_key.slice(-4)} (manter)` : PROVEDOR_INFO[novo].help}
+            />
           </div>
           <div className="space-y-1">
             <Label>Modelo por defeito</Label>
