@@ -17,6 +17,7 @@ import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedFluxoCaixaRouteImport } from './routes/_authenticated/fluxo-caixa'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
+import { Route as PRelatorioTokenRouteImport } from './routes/p.relatorio.$token'
 import { Route as AuthenticatedProjetosProjetoIdRouteImport } from './routes/_authenticated/projetos.$projetoId'
 
 const AuthRoute = AuthRouteImport.update({
@@ -60,6 +61,11 @@ const AuthenticatedConfiguracoesRoute =
     path: '/configuracoes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const PRelatorioTokenRoute = PRelatorioTokenRouteImport.update({
+  id: '/p/relatorio/$token',
+  path: '/p/relatorio/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedProjetosProjetoIdRoute =
   AuthenticatedProjetosProjetoIdRouteImport.update({
     id: '/projetos/$projetoId',
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/roadmap': typeof AuthenticatedRoadmapRoute
   '/subprojetos': typeof AuthenticatedSubprojetosRoute
   '/projetos/$projetoId': typeof AuthenticatedProjetosProjetoIdRoute
+  '/p/relatorio/$token': typeof PRelatorioTokenRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/subprojetos': typeof AuthenticatedSubprojetosRoute
   '/': typeof AuthenticatedIndexRoute
   '/projetos/$projetoId': typeof AuthenticatedProjetosProjetoIdRoute
+  '/p/relatorio/$token': typeof PRelatorioTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/_authenticated/subprojetos': typeof AuthenticatedSubprojetosRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/projetos/$projetoId': typeof AuthenticatedProjetosProjetoIdRoute
+  '/p/relatorio/$token': typeof PRelatorioTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/subprojetos'
     | '/projetos/$projetoId'
+    | '/p/relatorio/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/subprojetos'
     | '/'
     | '/projetos/$projetoId'
+    | '/p/relatorio/$token'
   id:
     | '__root__'
     | '/_authenticated'
@@ -131,11 +142,13 @@ export interface FileRouteTypes {
     | '/_authenticated/subprojetos'
     | '/_authenticated/'
     | '/_authenticated/projetos/$projetoId'
+    | '/p/relatorio/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  PRelatorioTokenRoute: typeof PRelatorioTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -196,6 +209,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/p/relatorio/$token': {
+      id: '/p/relatorio/$token'
+      path: '/p/relatorio/$token'
+      fullPath: '/p/relatorio/$token'
+      preLoaderRoute: typeof PRelatorioTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/projetos/$projetoId': {
       id: '/_authenticated/projetos/$projetoId'
       path: '/projetos/$projetoId'
@@ -232,6 +252,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  PRelatorioTokenRoute: PRelatorioTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
