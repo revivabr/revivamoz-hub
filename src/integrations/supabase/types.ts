@@ -121,6 +121,21 @@ export type Database = {
         }
         Relationships: []
       }
+      super_admin_seed: {
+        Row: {
+          created_at: string
+          email: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -147,6 +162,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      grant_super_admin_by_email: { Args: { _email: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -162,6 +178,14 @@ export type Database = {
         Args: { _projeto_id: string; _user_id: string }
         Returns: boolean
       }
+      list_super_admins: {
+        Args: never
+        Returns: {
+          email: string
+          status: string
+        }[]
+      }
+      revoke_super_admin_by_email: { Args: { _email: string }; Returns: string }
     }
     Enums: {
       app_role: "super_admin" | "gestor" | "financiador"
