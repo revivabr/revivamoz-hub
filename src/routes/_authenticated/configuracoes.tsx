@@ -111,6 +111,8 @@ function SettingsPage() {
 
   return (
     <DashboardLayout title={t("nav.settings")}>
+      <div className="space-y-6">
+      <CreateUserCard />
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
