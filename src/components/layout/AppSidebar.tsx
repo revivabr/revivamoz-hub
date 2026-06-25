@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Workflow, Wallet, FileBarChart, Settings, Sprout, Sparkles, Brain, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Workflow, Wallet, FileBarChart, Settings, Sparkles, Brain, ShieldCheck } from "lucide-react";
+import logoUrl from "@/assets/reviva-logo.png";
 
 import {
   Sidebar,
@@ -33,8 +34,8 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-3">
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground">
-            <Sprout className="h-5 w-5" />
+          <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-white">
+            <img src={logoUrl} alt="Reviva Moz" className="h-full w-full object-cover" />
           </div>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <div className="truncate text-sm font-bold tracking-tight text-sidebar-foreground">
