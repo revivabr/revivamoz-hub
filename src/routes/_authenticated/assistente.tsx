@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { assistenteAsk } from "@/lib/ai.functions";
+import { MODELOS_POR_PROVEDOR, PROVEDOR_LABEL, type ProvedorTipo } from "@/lib/ai-models";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/assistente")({
@@ -98,16 +99,20 @@ function AssistentePage() {
             <SelectTrigger className="w-48"><SelectValue placeholder="Provedor" /></SelectTrigger>
             <SelectContent>
               {provedores.map((p) => (
-                <SelectItem key={p.provedor} value={p.provedor}>{p.provedor}</SelectItem>
+                <SelectItem key={p.provedor} value={p.provedor}>
+                  {PROVEDOR_LABEL[p.provedor as ProvedorTipo] ?? p.provedor}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <input
-            className="h-9 w-56 rounded-md border bg-background px-3 text-sm"
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-            placeholder="modelo"
-          />
+          <Select value={model} onValueChange={setModel} disabled={!provedor}>
+            <SelectTrigger className="w-64"><SelectValue placeholder="Modelo" /></SelectTrigger>
+            <SelectContent>
+              {(provedor ? MODELOS_POR_PROVEDOR[provedor as ProvedorTipo] : []).map((m) => (
+                <SelectItem key={m} value={m}>{m}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <Card className="flex-1 overflow-hidden">
