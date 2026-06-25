@@ -93,7 +93,7 @@ export const assistenteAsk = createServerFn({ method: "POST" })
     // Projetos visíveis ao utilizador (RLS aplica-se)
     const { data: projetos } = await sb
       .from("projetos")
-      .select("id, nome, tipo, orcamento_total, estado")
+      .select("id, nome, tipo, orcamento, estado")
       .limit(50);
 
     const ids = (projetos ?? []).map((p) => p.id);
