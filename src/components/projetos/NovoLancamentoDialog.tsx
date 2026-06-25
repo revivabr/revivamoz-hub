@@ -168,6 +168,42 @@ export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, on
           </DialogFooter>
         </form>
       </DialogContent>
+
+      <Dialog open={catOpen} onOpenChange={(v) => { setCatOpen(v); if (!v) setCatNome(""); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Criar categoria ({form.tipo})</DialogTitle>
+          </DialogHeader>
+          <form
+            className="space-y-3"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const nome = catNome.trim();
+              if (!nome) return;
+              const { data, error } = await supabase
+                .from("categorias")
+                .insert({ projeto_id: projetoId, tipo: form.tipo, nome })
+                .select("id")
+                .single();
+              if (error) { toast.error(error.message); return; }
+              await qc.invalidateQueries({ queryKey: ["categorias", projetoId] });
+              setForm((f) => ({ ...f, categoria_id: data.id }));
+              setCatNome("");
+              setCatOpen(false);
+              toast.success("Categoria criada.");
+            }}
+          >
+            <div className="space-y-1">
+              <Label>Nome</Label>
+              <Input autoFocus value={catNome} onChange={(e) => setCatNome(e.target.value)} required />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="ghost" onClick={() => setCatOpen(false)}>Cancelar</Button>
+              <Button type="submit">Criar</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
