@@ -61,3 +61,59 @@ export const exportProjeto = createServerFn({ method: "POST" })
       convites: convites.data ?? [],
     };
   });
+
+// --- Backups ---------------------------------------------------------------
+
+export const listBackupRuns = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId, _role: "super_admin",
+    });
+    if (!isAdmin) throw new Error("Apenas Super Admin");
+    const { data, error } = await context.supabase
+      .from("backup_runs")
+      .select("*")
+      .order("started_at", { ascending: false })
+      .limit(30);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const runBackupNow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId, _role: "super_admin",
+    });
+    if (!isAdmin) throw new Error("Apenas Super Admin");
+
+    const origin = process.env.APP_URL
+      || "https://project--4e38af4c-3639-4633-8366-8f666466ae5e.lovable.app";
+    const res = await fetch(`${origin}/api/public/hooks/backup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: process.env.SUPABASE_PUBLISHABLE_KEY!,
+      },
+      body: JSON.stringify({ trigger: "manual" }),
+    });
+    const text = await res.text();
+    if (!res.ok) throw new Error(text || `Falha (${res.status})`);
+    try { return JSON.parse(text); } catch { return { ok: true }; }
+  });
+
+export const getBackupDownloadUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ path: z.string().min(1) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId, _role: "super_admin",
+    });
+    if (!isAdmin) throw new Error("Apenas Super Admin");
+    const { data: signed, error } = await context.supabase
+      .storage.from("backups").createSignedUrl(data.path, 300);
+    if (error || !signed) throw new Error(error?.message ?? "Erro a assinar URL");
+    return { url: signed.signedUrl };
+  });
+
