@@ -14,12 +14,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useI18n } from "@/lib/i18n";
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { t } = useI18n();
+  const { isMobile, setOpenMobile } = useSidebar();
+
 
   const items = [
     { titleKey: "nav.overview", url: "/", icon: LayoutDashboard },
