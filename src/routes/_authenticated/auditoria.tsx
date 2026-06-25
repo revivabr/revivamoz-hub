@@ -190,14 +190,21 @@ function BackupsCard() {
                 </Badge>
                 <div className="text-xs text-muted-foreground">
                   {r.status === "success"
-                    ? <>projetos: {r.projetos_count ?? 0} · lançamentos: {r.lancamentos_count ?? 0} · {fmtSize(r.size_bytes)}</>
+                    ? <>projetos: {r.projetos_count ?? 0} · lançamentos: {r.lancamentos_count ?? 0} · {fmtSize(r.size_bytes)}{r.drive_url ? " · ✓ Drive" : r.drive_error ? ` · Drive: ${r.drive_error}` : ""}</>
                     : r.error ?? "—"}
                 </div>
-                {r.file_path && (
-                  <Button size="sm" variant="outline" onClick={() => download(r.file_path)}>
-                    <Download className="mr-1 h-4 w-4" /> Descarregar
-                  </Button>
-                )}
+                <div className="flex gap-2">
+                  {r.drive_url && (
+                    <a href={r.drive_url} target="_blank" rel="noreferrer" className="inline-flex">
+                      <Button size="sm" variant="ghost">Drive</Button>
+                    </a>
+                  )}
+                  {r.file_path && (
+                    <Button size="sm" variant="outline" onClick={() => download(r.file_path)}>
+                      <Download className="mr-1 h-4 w-4" /> Descarregar
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
