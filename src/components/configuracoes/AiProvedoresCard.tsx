@@ -76,7 +76,7 @@ export function AiProvedoresCard() {
       const existsRow = provedores.find((p) => p.provedor === args.provedor);
       if (existsRow) {
         // Update — só atualiza a chave se foi fornecida
-        const patch: Record<string, unknown> = { default_model: args.default_model };
+        const patch: { default_model: string; api_key?: string } = { default_model: args.default_model };
         if (args.api_key) patch.api_key = args.api_key;
         const { error } = await supabase.from("ai_provedores").update(patch).eq("provedor", args.provedor);
         if (error) throw error;
