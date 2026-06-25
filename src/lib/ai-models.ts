@@ -22,18 +22,23 @@ export const MODELOS_POR_PROVEDOR: Record<ProvedorTipo, string[]> = {
     "gemini-3.5-flash",
   ],
   opencode_go: [
-    // Modelos disponíveis via Opencode-Go (OpenAI-compatible)
-    "claude-sonnet-4-5",
-    "claude-opus-4-1",
-    "claude-haiku-4-5",
-    "gpt-4.1",
-    "gpt-4.1-mini",
-    "gpt-5",
-    "gpt-5-mini",
-    "gemini-2.5-pro",
-    "gemini-2.5-flash",
-    "grok-code",
-    "qwen3-coder",
+    // Modelos oficiais Opencode-Go (https://opencode.ai/zen/go/v1/models)
+    // OpenAI-compatible endpoint (/v1/chat/completions)
+    "glm-5.2",
+    "glm-5.1",
+    "kimi-k2.7-code",
+    "kimi-k2.6",
+    "deepseek-v4-pro",
+    "deepseek-v4-flash",
+    "mimo-v2.5",
+    "mimo-v2.5-pro",
+    // Anthropic-compatible endpoint (/v1/messages)
+    "minimax-m3",
+    "minimax-m2.7",
+    "minimax-m2.5",
+    "qwen3.7-max",
+    "qwen3.7-plus",
+    "qwen3.6-plus",
   ],
 };
 
