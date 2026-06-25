@@ -167,3 +167,46 @@ export const adminResetPassword = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const adminUpdateUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => updateUserSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId, _role: "super_admin",
+    });
+    if (!isAdmin) throw new Error("Apenas Super Admins.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: uErr } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+      user_metadata: { full_name: data.fullName },
+    });
+    if (uErr) throw new Error(uErr.message);
+
+    await supabaseAdmin.from("profiles").update({ full_name: data.fullName }).eq("id", data.userId);
+
+    // Substitui associações: remove anteriores e cria a nova.
+    await supabaseAdmin.from("projeto_membros").delete().eq("user_id", data.userId);
+    const { error: mErr } = await supabaseAdmin
+      .from("projeto_membros")
+      .insert({ user_id: data.userId, projeto_id: data.projetoId, papel: data.papel });
+    if (mErr) throw new Error(mErr.message);
+    return { ok: true };
+  });
+
+export const adminDeleteUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => deleteUserSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId, _role: "super_admin",
+    });
+    if (!isAdmin) throw new Error("Apenas Super Admins.");
+    if (data.userId === context.userId) throw new Error("Não pode eliminar a sua própria conta.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
