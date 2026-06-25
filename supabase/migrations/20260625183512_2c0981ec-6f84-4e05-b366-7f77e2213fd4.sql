@@ -1,0 +1,1 @@
+ALTER TABLE public.backup_runs ADD COLUMN IF NOT EXISTS drive_file_id TEXT, ADD COLUMN IF NOT EXISTS drive_url TEXT, ADD COLUMN IF NOT EXISTS drive_error TEXT;
