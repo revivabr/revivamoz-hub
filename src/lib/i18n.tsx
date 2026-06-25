@@ -8,7 +8,7 @@ const dictionaries: Record<Locale, Dict> = {
   "pt-MZ": {
     "nav.section": "Navegação",
     "nav.overview": "Visão Global",
-    "nav.subprojects": "Subprojetos",
+    "nav.subprojects": "Projetos Ativos",
     "nav.cashflow": "Fluxo de Caixa",
     "nav.reports": "Relatórios",
     "nav.roadmap": "Roadmap",
@@ -80,7 +80,7 @@ const dictionaries: Record<Locale, Dict> = {
   "pt-BR": {
     "nav.section": "Navegação",
     "nav.overview": "Visão Geral",
-    "nav.subprojects": "Subprojetos",
+    "nav.subprojects": "Projetos Ativos",
     "nav.cashflow": "Fluxo de Caixa",
     "nav.reports": "Relatórios",
     "nav.roadmap": "Roadmap",
