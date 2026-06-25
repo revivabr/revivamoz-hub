@@ -113,6 +113,9 @@ export type Database = {
       backup_runs: {
         Row: {
           created_at: string
+          drive_error: string | null
+          drive_file_id: string | null
+          drive_url: string | null
           error: string | null
           file_path: string | null
           finished_at: string | null
@@ -126,6 +129,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          drive_error?: string | null
+          drive_file_id?: string | null
+          drive_url?: string | null
           error?: string | null
           file_path?: string | null
           finished_at?: string | null
@@ -139,6 +145,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          drive_error?: string | null
+          drive_file_id?: string | null
+          drive_url?: string | null
           error?: string | null
           file_path?: string | null
           finished_at?: string | null
