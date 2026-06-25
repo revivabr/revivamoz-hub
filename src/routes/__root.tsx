@@ -147,6 +147,7 @@ function RootComponent() {
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
     });
+    import("@/lib/offline-queue").then((m) => m.installOfflineFlush());
     return () => sub.subscription.unsubscribe();
   }, [router, queryClient]);
 
