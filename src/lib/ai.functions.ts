@@ -75,6 +75,8 @@ async function callAiProvider(args: {
       .filter((m) => m.role !== "system")
       .map((m) => ({ role: m.role, content: m.content }));
     headers["anthropic-version"] = "2023-06-01";
+    headers["x-api-key"] = args.apiKey;
+    delete headers.Authorization;
     body = JSON.stringify({
       model: providerModel,
       max_tokens: 4096,
