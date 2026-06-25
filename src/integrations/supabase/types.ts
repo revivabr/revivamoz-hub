@@ -290,6 +290,7 @@ export type Database = {
           descricao: string | null
           estado: Database["public"]["Enums"]["projeto_estado"]
           id: string
+          logo_path: string | null
           moeda: string
           nome: string
           orcamento: number
@@ -303,6 +304,7 @@ export type Database = {
           descricao?: string | null
           estado?: Database["public"]["Enums"]["projeto_estado"]
           id?: string
+          logo_path?: string | null
           moeda?: string
           nome: string
           orcamento?: number
@@ -316,6 +318,7 @@ export type Database = {
           descricao?: string | null
           estado?: Database["public"]["Enums"]["projeto_estado"]
           id?: string
+          logo_path?: string | null
           moeda?: string
           nome?: string
           orcamento?: number
