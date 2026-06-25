@@ -4,10 +4,20 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const createUserSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string().min(6),
   fullName: z.string().trim().min(1),
   projetoId: z.string().uuid(),
   papel: z.enum(["gestor", "financiador", "leitor"]).default("leitor"),
+});
+
+const seedSchema = z.object({
+  items: z.array(z.object({
+    email: z.string().email(),
+    password: z.string().min(6),
+    fullName: z.string().trim().min(1),
+    projetoId: z.string().uuid(),
+    papel: z.enum(["gestor", "financiador", "leitor"]).default("gestor"),
+  })).min(1).max(50),
 });
 
 export const adminCreateUser = createServerFn({ method: "POST" })
