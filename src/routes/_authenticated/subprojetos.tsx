@@ -36,7 +36,7 @@ type Projeto = {
   nome: string;
   descricao: string | null;
   estado: "planeado" | "ativo" | "pausado" | "concluido" | "cancelado";
-  tipo: "programa_social" | "projeto_sazonal";
+  tipo: "programa_social" | "projeto_sazonal" | "caixa_administrativo";
   orcamento: number;
   moeda: string;
   data_inicio: string | null;
@@ -48,6 +48,7 @@ type Projeto = {
 const TIPO_LABEL: Record<Projeto["tipo"], string> = {
   programa_social: "Programa Social",
   projeto_sazonal: "Projeto Sazonal",
+  caixa_administrativo: "Caixa Administrativo",
 };
 
 type Membro = {
@@ -166,7 +167,7 @@ function SubprojectsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1 text-xs text-muted-foreground">
-                {p.tipo === "programa_social" ? "Doações mensais" : "Orçamento"}:{" "}
+                {p.tipo === "programa_social" ? "Doações mensais" : p.tipo === "caixa_administrativo" ? "Saldo inicial" : "Orçamento"}:{" "}
                 <span className="font-medium text-foreground">
                   {Number(p.orcamento).toLocaleString("pt-PT")} {p.moeda}
                 </span>
@@ -269,11 +270,14 @@ function CreateProjetoDialog({
             <SelectContent>
               <SelectItem value="programa_social">Programa Social (doações mensais)</SelectItem>
               <SelectItem value="projeto_sazonal">Projeto Sazonal (orçamento fixo)</SelectItem>
+              <SelectItem value="caixa_administrativo">Caixa Administrativo (livro caixa)</SelectItem>
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">
             {form.tipo === "programa_social"
               ? "Recebe doações recorrentes para mantimento contínuo."
+              : form.tipo === "caixa_administrativo"
+              ? "Livro caixa para registo de entradas e saídas; orçamento opcional como saldo inicial."
               : "Orçamento fixo com prazo de início e fim; despesas subtraem do total."}
           </p>
         </div>

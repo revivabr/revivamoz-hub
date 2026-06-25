@@ -521,7 +521,10 @@ export type Database = {
         | "concluido"
         | "cancelado"
       projeto_papel: "gestor" | "financiador" | "leitor"
-      projeto_tipo: "programa_social" | "projeto_sazonal"
+      projeto_tipo:
+        | "programa_social"
+        | "projeto_sazonal"
+        | "caixa_administrativo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -661,7 +664,11 @@ export const Constants = {
         "cancelado",
       ],
       projeto_papel: ["gestor", "financiador", "leitor"],
-      projeto_tipo: ["programa_social", "projeto_sazonal"],
+      projeto_tipo: [
+        "programa_social",
+        "projeto_sazonal",
+        "caixa_administrativo",
+      ],
     },
   },
 } as const

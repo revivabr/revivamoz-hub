@@ -1,0 +1,1 @@
+ALTER TYPE public.projeto_tipo ADD VALUE IF NOT EXISTS 'caixa_administrativo';
