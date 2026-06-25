@@ -164,7 +164,7 @@ export function AiProvedoresCard() {
                   <div className="flex items-center gap-3">
                     <Switch
                       checked={p.enabled}
-                      onCheckedChange={(v) => upsert.mutate({ provedor: p.provedor, enabled: v })}
+                      onCheckedChange={(v) => toggle.mutate({ provedor: p.provedor, enabled: v })}
                     />
                     <Button variant="ghost" size="icon" onClick={() => {
                       if (confirm(`Remover provedor ${p.provedor}?`)) remove.mutate(p.provedor);
