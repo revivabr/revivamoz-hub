@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, Search, Moon, Sun, Languages, HelpCircle, LogOut } from "lucide-react";
+import { Search, Moon, Sun, Languages, HelpCircle, LogOut } from "lucide-react";
+import { NotificationsBell } from "@/components/notifications/NotificationsBell";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/lib/theme";
