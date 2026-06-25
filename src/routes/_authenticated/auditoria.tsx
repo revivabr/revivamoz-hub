@@ -103,17 +103,17 @@ function AuditoriaPage() {
           ) : (
             <div className="divide-y">
               {rows.map((r: any) => (
-                <div key={r.id} className="grid gap-1 p-4 text-sm md:grid-cols-[180px_140px_1fr]">
-                  <div className="text-xs text-muted-foreground">
+                <div key={r.id} className="flex flex-col gap-2 p-4 text-sm md:grid md:grid-cols-[180px_200px_1fr] md:items-start md:gap-4">
+                  <div className="text-xs text-muted-foreground whitespace-nowrap">
                     {new Date(r.created_at).toLocaleString("pt-PT", { timeZone: "Africa/Maputo" })}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 min-w-0">
                     <Badge variant={opVariant(r.operation)}>{r.operation}</Badge>
-                    <span className="text-xs">{r.table_name}</span>
+                    <span className="text-xs truncate">{r.table_name}</span>
                   </div>
-                  <div>
-                    <div className="font-medium">{r.actor_email ?? r.actor_id ?? "sistema"}</div>
-                    <div className="text-xs text-muted-foreground">
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{r.actor_email ?? r.actor_id ?? "sistema"}</div>
+                    <div className="text-xs text-muted-foreground break-all">
                       id: <code>{r.record_id?.slice(0, 8)}…</code>
                       {r.projeto_id && <> · projeto: <code>{r.projeto_id.slice(0, 8)}…</code></>}
                     </div>
