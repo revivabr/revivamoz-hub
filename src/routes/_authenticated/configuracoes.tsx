@@ -203,6 +203,7 @@ function SettingsPage() {
 }
 
 function CreateUserCard() {
+  const queryClient = useQueryClient();
   const createUser = useServerFn(adminCreateUser);
   const [form, setForm] = useState({
     fullName: "", email: "", password: "",
@@ -226,9 +227,11 @@ function CreateUserCard() {
     onSuccess: () => {
       toast.success("Utilizador criado e associado ao projeto.");
       setForm({ fullName: "", email: "", password: "", projetoId: "", papel: "leitor" });
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   return (
     <Card>
