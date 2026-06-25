@@ -52,3 +52,50 @@ export const adminCreateUser = createServerFn({ method: "POST" })
 
     return { id: userId, email: created.user?.email };
   });
+
+export const adminSeedGestores = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => seedSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId, _role: "super_admin",
+    });
+    if (!isAdmin) throw new Error("Apenas Super Admins.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const results: Array<{ email: string; status: "created" | "exists" | "error"; message?: string }> = [];
+
+    for (const it of data.items) {
+      try {
+        // Try create; if email exists, look up the user id.
+        let userId: string | undefined;
+        const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+          email: it.email,
+          password: it.password,
+          email_confirm: true,
+          user_metadata: { full_name: it.fullName },
+        });
+        let status: "created" | "exists" = "created";
+        if (error) {
+          // already registered
+          const { data: list } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
+          const found = list?.users?.find((u) => u.email?.toLowerCase() === it.email.toLowerCase());
+          if (!found) { results.push({ email: it.email, status: "error", message: error.message }); continue; }
+          userId = found.id;
+          status = "exists";
+        } else {
+          userId = created.user?.id;
+        }
+        if (!userId) { results.push({ email: it.email, status: "error", message: "sem user id" }); continue; }
+
+        await supabaseAdmin
+          .from("projeto_membros")
+          .upsert({ projeto_id: it.projetoId, user_id: userId, papel: it.papel }, { onConflict: "projeto_id,user_id" });
+
+        results.push({ email: it.email, status });
+      } catch (e) {
+        results.push({ email: it.email, status: "error", message: (e as Error).message });
+      }
+    }
+    return { results };
+  });
