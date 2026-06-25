@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { AiProvedoresCard } from "@/components/configuracoes/AiProvedoresCard";
 
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
