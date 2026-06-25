@@ -128,7 +128,7 @@ function ProjetoDashboard() {
         </div>
       </div>
 
-      <div className="mb-4 grid gap-4 md:grid-cols-[280px_1fr] md:items-start">
+      <div className="mb-4 grid gap-4 md:grid-cols-[480px_1fr] md:items-start">
         <div className="space-y-2">
           {isGestor ? (
             <ProjetoLogoUploader
@@ -145,6 +145,7 @@ function ProjetoDashboard() {
           <p className="text-sm text-muted-foreground">{projeto.descricao}</p>
         )}
       </div>
+
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <ProjetoKpiCard label="Entradas" value={fmt(totals.entradas)} icon={TrendingUp} tone="ok" />
