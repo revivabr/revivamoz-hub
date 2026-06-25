@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, Workflow, Wallet, FileBarChart, Settings, Sparkles, Brain, ShieldCheck, X } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import logoUrl from "@/assets/reviva-logo.png";
+import { meQuery, isSuperAdminQuery } from "@/lib/subprojetos/queries";
 
 
 
@@ -31,6 +33,9 @@ export function AppSidebar() {
 
 
 
+  const { data: me } = useQuery(meQuery);
+  const { data: isSuperAdmin } = useQuery(isSuperAdminQuery(me?.id));
+
   const items = [
     { titleKey: "nav.overview", url: "/", icon: LayoutDashboard },
     { titleKey: "nav.subprojects", url: "/subprojetos", icon: Workflow },
@@ -38,7 +43,7 @@ export function AppSidebar() {
     { titleKey: "nav.reports", url: "/relatorios", icon: FileBarChart },
     { titleKey: "nav.assistant", url: "/assistente", icon: Sparkles },
     { titleKey: "nav.intelligence", url: "/inteligencia", icon: Brain },
-    { titleKey: "nav.audit", url: "/auditoria", icon: ShieldCheck },
+    ...(isSuperAdmin ? [{ titleKey: "nav.audit", url: "/auditoria", icon: ShieldCheck }] : []),
     { titleKey: "nav.settings", url: "/configuracoes", icon: Settings },
   ] as const;
 

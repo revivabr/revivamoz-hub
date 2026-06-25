@@ -12,6 +12,7 @@ import {
 import { listAuditLog, listBackupRuns, runBackupNow, getBackupDownloadUrl } from "@/lib/ops.functions";
 import { ShieldAlert, Download, PlayCircle, Database } from "lucide-react";
 import { toast } from "sonner";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
 export const Route = createFileRoute("/_authenticated/auditoria")({
   component: AuditoriaPage,
@@ -52,7 +53,7 @@ function AuditoriaPage() {
 
   if (error) {
     return (
-      <div className="p-6">
+      <DashboardLayout title="Auditoria">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-destructive">
@@ -61,12 +62,14 @@ function AuditoriaPage() {
             <CardDescription>{(error as Error).message}</CardDescription>
           </CardHeader>
         </Card>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="space-y-4 p-4 md:p-6">
+    <DashboardLayout title="Auditoria">
+    <div className="space-y-4">
+
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Trilho de Auditoria</h1>
         <p className="text-sm text-muted-foreground">Quem fez o quê e quando — registado automaticamente.</p>
@@ -125,8 +128,10 @@ function AuditoriaPage() {
         </CardContent>
       </Card>
     </div>
+    </DashboardLayout>
   );
 }
+
 
 function BackupsCard() {
   const fetchRuns = useServerFn(listBackupRuns);
