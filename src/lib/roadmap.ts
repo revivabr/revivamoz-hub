@@ -51,7 +51,7 @@ export const roadmap: RoadmapPhase[] = [
       { id: "3.3", title: "Autenticação e perfis (Super Admin, Gestor, Financiador)", status: "done" },
       { id: "3.4", title: "Tabela user_roles + função has_role (security definer)", status: "done" },
       { id: "3.5", title: "Isolamento por projeto via RLS (tenant = projeto)", status: "done" },
-      { id: "3.6", title: "Convites de membros por projeto", status: "todo" },
+      { id: "3.6", title: "Convites de membros por projeto", status: "done" },
     ],
   },
   {
