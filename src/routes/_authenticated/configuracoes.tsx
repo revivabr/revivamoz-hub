@@ -200,12 +200,28 @@ function SettingsPage() {
 
 function CreateUserCard() {
   const createUser = useServerFn(adminCreateUser);
-  const [form, setForm] = useState({ fullName: "", email: "", password: "" });
+  const [form, setForm] = useState({
+    fullName: "", email: "", password: "",
+    projetoId: "", papel: "leitor" as "gestor" | "financiador" | "leitor",
+  });
+
+  const { data: projetos = [] } = useQuery({
+    queryKey: ["projetos-min"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projetos")
+        .select("id,nome,tipo")
+        .order("nome");
+      if (error) throw error;
+      return data as Array<{ id: string; nome: string; tipo: string }>;
+    },
+  });
+
   const mutation = useMutation({
     mutationFn: () => createUser({ data: form }),
     onSuccess: () => {
-      toast.success("Utilizador criado. Já pode iniciar sessão.");
-      setForm({ fullName: "", email: "", password: "" });
+      toast.success("Utilizador criado e associado ao projeto.");
+      setForm({ fullName: "", email: "", password: "", projetoId: "", papel: "leitor" });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -217,14 +233,18 @@ function CreateUserCard() {
           <KeyRound className="h-5 w-5" /> Criar utilizador
         </CardTitle>
         <CardDescription>
-          Emita credenciais para utilizadores autorizados. O acesso a projetos é depois concedido
-          através de convites no painel de cada projeto.
+          Emita credenciais e associe imediatamente o utilizador ao projeto/programa a que terá
+          acesso restrito.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form
           className="grid gap-3 sm:grid-cols-2"
-          onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!form.projetoId) { toast.error("Seleccione um projeto."); return; }
+            mutation.mutate();
+          }}
         >
           <div className="space-y-1 sm:col-span-2">
             <Label>Nome completo</Label>
@@ -240,6 +260,32 @@ function CreateUserCard() {
             <Label>Palavra-passe inicial</Label>
             <Input type="text" minLength={8} required value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })} />
+          </div>
+          <div className="space-y-1">
+            <Label>Projeto / Programa</Label>
+            <select
+              required
+              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+              value={form.projetoId}
+              onChange={(e) => setForm({ ...form, projetoId: e.target.value })}
+            >
+              <option value="">— Seleccionar —</option>
+              {projetos.map((p) => (
+                <option key={p.id} value={p.id}>{p.nome}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1">
+            <Label>Papel no projeto</Label>
+            <select
+              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+              value={form.papel}
+              onChange={(e) => setForm({ ...form, papel: e.target.value as typeof form.papel })}
+            >
+              <option value="leitor">Leitor (só consulta)</option>
+              <option value="financiador">Financiador</option>
+              <option value="gestor">Gestor</option>
+            </select>
           </div>
           <div className="sm:col-span-2">
             <Button type="submit" disabled={mutation.isPending}>

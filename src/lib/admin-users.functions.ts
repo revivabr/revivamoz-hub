@@ -6,6 +6,8 @@ const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   fullName: z.string().trim().min(1),
+  projetoId: z.string().uuid(),
+  papel: z.enum(["gestor", "financiador", "leitor"]).default("leitor"),
 });
 
 export const adminCreateUser = createServerFn({ method: "POST" })
@@ -28,5 +30,15 @@ export const adminCreateUser = createServerFn({ method: "POST" })
       user_metadata: { full_name: data.fullName },
     });
     if (error) throw new Error(error.message);
-    return { id: created.user?.id, email: created.user?.email };
+
+    const userId = created.user?.id;
+    if (!userId) throw new Error("Falha ao obter ID do utilizador criado.");
+
+    // Associa o utilizador ao projeto/programa indicado.
+    const { error: memErr } = await supabaseAdmin
+      .from("projeto_membros")
+      .insert({ projeto_id: data.projetoId, user_id: userId, papel: data.papel });
+    if (memErr) throw new Error(`Utilizador criado, mas falhou associação ao projeto: ${memErr.message}`);
+
+    return { id: userId, email: created.user?.email };
   });
