@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { normalizeAiModelId, type ProvedorTipo } from "@/lib/ai-models";
 
 const ProvedorEnum = z.enum(["openai", "gemini", "opencode_go"]);
 
@@ -22,7 +23,6 @@ type Provedor = z.infer<typeof ProvedorEnum>;
 const OPENCODE_ANTHROPIC_MODELS = new Set([
   "minimax-m3",
   "minimax-m2.7",
-  "minimax-m2.5",
   "qwen3.7-max",
   "qwen3.7-plus",
   "qwen3.6-plus",
@@ -52,6 +52,60 @@ function endpointFor(p: Provedor, model: string, baseUrl: string | null): {
   }
 }
 
+async function callAiProvider(args: {
+  provedor: Provedor;
+  model: string;
+  messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
+  temperature?: number;
+  apiKey: string;
+  baseUrl: string | null;
+}) {
+  const providerModel = normalizeAiModelId(args.provedor as ProvedorTipo, args.model);
+  const { url, flavor } = endpointFor(args.provedor, providerModel, args.baseUrl);
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${args.apiKey}`,
+  };
+
+  let body: string;
+  if (flavor === "anthropic") {
+    const system = args.messages.filter((m) => m.role === "system").map((m) => m.content).join("\n\n");
+    const msgs = args.messages
+      .filter((m) => m.role !== "system")
+      .map((m) => ({ role: m.role, content: m.content }));
+    headers["anthropic-version"] = "2023-06-01";
+    body = JSON.stringify({
+      model: providerModel,
+      max_tokens: 4096,
+      temperature: args.temperature ?? 0.3,
+      system: system || undefined,
+      messages: msgs,
+    });
+  } else {
+    body = JSON.stringify({
+      model: providerModel,
+      messages: args.messages,
+      temperature: args.temperature ?? 0.3,
+    });
+  }
+
+  const res = await fetch(url, { method: "POST", headers, body });
+
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`Erro do provedor (${res.status}): ${txt.slice(0, 400)}`);
+  }
+  const json = await res.json() as {
+    choices?: Array<{ message?: { content?: string } }>;
+    content?: Array<{ text?: string }>;
+  };
+  const content = flavor === "anthropic"
+    ? (json.content?.map((c) => c.text ?? "").join("") ?? "")
+    : (json.choices?.[0]?.message?.content ?? "");
+  return { content, endpoint: url, flavor, providerModel };
+}
+
 export const aiChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => ChatInput.parse(input))
@@ -70,49 +124,63 @@ export const aiChat = createServerFn({ method: "POST" })
       );
     }
 
-    const { url, flavor } = endpointFor(data.provedor, data.model, cfg.base_url);
+    const result = await callAiProvider({
+      provedor: data.provedor,
+      model: data.model,
+      messages: data.messages,
+      temperature: data.temperature,
+      apiKey: cfg.api_key,
+      baseUrl: cfg.base_url,
+    });
+    return { content: result.content };
+  });
 
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${cfg.api_key}`,
-    };
+export const testAiProviderEndpoints = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ provedor: ProvedorEnum }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: isSuperAdmin, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "super_admin",
+    });
+    if (roleError) throw new Error(roleError.message);
+    if (!isSuperAdmin) throw new Error("Apenas Super Admins podem testar endpoints de IA.");
 
-    let body: string;
-    if (flavor === "anthropic") {
-      const system = data.messages.filter((m) => m.role === "system").map((m) => m.content).join("\n\n");
-      const msgs = data.messages
-        .filter((m) => m.role !== "system")
-        .map((m) => ({ role: m.role, content: m.content }));
-      headers["anthropic-version"] = "2023-06-01";
-      body = JSON.stringify({
-        model: data.model,
-        max_tokens: 4096,
-        temperature: data.temperature ?? 0.3,
-        system: system || undefined,
-        messages: msgs,
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: cfg, error } = await supabaseAdmin
+      .from("ai_provedores")
+      .select("api_key, base_url, enabled, default_model")
+      .eq("provedor", data.provedor)
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    if (!cfg || !cfg.enabled) throw new Error("Provedor não configurado ou desativado.");
+
+    if (data.provedor === "opencode_go") {
+      const modelsRes = await fetch("https://opencode.ai/zen/go/v1/models", {
+        headers: { Authorization: `Bearer ${cfg.api_key}` },
       });
-    } else {
-      body = JSON.stringify({
-        model: data.model,
-        messages: data.messages,
-        temperature: data.temperature ?? 0.3,
-      });
+      if (!modelsRes.ok) {
+        const txt = await modelsRes.text();
+        throw new Error(`Erro ao listar modelos (${modelsRes.status}): ${txt.slice(0, 300)}`);
+      }
     }
 
-    const res = await fetch(url, { method: "POST", headers, body });
+    const chatResult = await callAiProvider({
+      provedor: data.provedor,
+      model: cfg.default_model,
+      messages: [{ role: "user", content: "Responda apenas: ok" }],
+      temperature: 0,
+      apiKey: cfg.api_key,
+      baseUrl: cfg.base_url,
+    });
 
-    if (!res.ok) {
-      const txt = await res.text();
-      throw new Error(`Erro do provedor (${res.status}): ${txt.slice(0, 400)}`);
-    }
-    const json = await res.json() as {
-      choices?: Array<{ message?: { content?: string } }>;
-      content?: Array<{ text?: string }>;
+    return {
+      ok: true,
+      model: cfg.default_model,
+      endpoint: chatResult.endpoint.replace(/^https:\/\//, ""),
+      flavor: chatResult.flavor,
     };
-    const content = flavor === "anthropic"
-      ? (json.content?.map((c) => c.text ?? "").join("") ?? "")
-      : (json.choices?.[0]?.message?.content ?? "");
-    return { content };
   });
 
 // Assistente — agrega contexto financeiro do utilizador antes de chamar o modelo
