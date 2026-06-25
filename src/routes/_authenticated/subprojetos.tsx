@@ -94,19 +94,7 @@ function SubprojectsPage() {
     },
   });
 
-  const { data: isGestorGlobal } = useQuery({
-    queryKey: ["is-gestor", me?.id],
-    enabled: !!me,
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("has_role", {
-        _user_id: me!.id, _role: "gestor",
-      });
-      if (error) throw error;
-      return !!data;
-    },
-  });
-
-  const canCreate = !!isSuperAdmin || !!isGestorGlobal;
+  const canCreate = !!isSuperAdmin;
 
   const { data: projetos = [], isLoading } = useQuery({
     queryKey: ["projetos"],
