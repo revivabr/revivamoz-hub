@@ -274,6 +274,21 @@ function CreateProjetoDialog({
           <Label>Descrição</Label>
           <Textarea rows={3} value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} />
         </div>
+        <div className="space-y-1">
+          <Label>Categoria</Label>
+          <Select value={form.tipo} onValueChange={(v) => setForm({ ...form, tipo: v as Projeto["tipo"] })}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="programa_social">Programa Social (doações mensais)</SelectItem>
+              <SelectItem value="projeto_sazonal">Projeto Sazonal (orçamento fixo)</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            {form.tipo === "programa_social"
+              ? "Recebe doações recorrentes para mantimento contínuo."
+              : "Orçamento fixo com prazo de início e fim; despesas subtraem do total."}
+          </p>
+        </div>
         <div className="grid grid-cols-3 gap-2">
           <div className="space-y-1">
             <Label>Estado</Label>
