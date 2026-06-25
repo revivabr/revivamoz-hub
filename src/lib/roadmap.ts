@@ -95,9 +95,10 @@ export const roadmap: RoadmapPhase[] = [
     tasks: [
       { id: "7.1", title: "Análise preditiva de fluxo de caixa por projeto", status: "todo" },
       { id: "7.2", title: "Detecção de anomalias em despesas e categorias", status: "todo" },
-      { id: "7.3", title: "Assistente em linguagem natural (perguntar aos dados)", status: "todo" },
+      { id: "7.3", title: "Assistente em linguagem natural (perguntar aos dados)", status: "done" },
       { id: "7.4", title: "Resumo executivo mensal automático para o Super Admin", status: "todo" },
       { id: "7.5", title: "Sugestões de optimização orçamental", status: "todo" },
+      { id: "7.6", title: "Multi-provedor de IA configurável (OpenAI, Gemini, Opencode-Go)", status: "done" },
     ],
   },
   {
