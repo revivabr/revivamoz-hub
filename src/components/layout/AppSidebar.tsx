@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Workflow, Wallet, FileBarChart, Settings, Sprout, ListChecks, Sparkles, Brain } from "lucide-react";
+import { LayoutDashboard, Workflow, Wallet, FileBarChart, Settings, Sprout, ListChecks, Sparkles, Brain, ShieldCheck } from "lucide-react";
 
 import {
   Sidebar,
