@@ -225,7 +225,9 @@ function CreateProjetoDialog({
   onClose, onCreated, userId,
 }: { onClose: () => void; onCreated: () => void; userId: string }) {
   const [form, setForm] = useState({
-    nome: "", descricao: "", estado: "planeado" as Projeto["estado"],
+    nome: "", descricao: "",
+    tipo: "projeto_sazonal" as Projeto["tipo"],
+    estado: "planeado" as Projeto["estado"],
     orcamento: "0", moeda: "MZN",
   });
   const mutation = useMutation({
@@ -235,6 +237,7 @@ function CreateProjetoDialog({
         .insert({
           nome: form.nome.trim(),
           descricao: form.descricao.trim() || null,
+          tipo: form.tipo,
           estado: form.estado,
           orcamento: Number(form.orcamento) || 0,
           moeda: form.moeda,
