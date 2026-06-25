@@ -9,159 +9,161 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SubprojetosRouteImport } from './routes/subprojetos'
-import { Route as RoadmapRouteImport } from './routes/roadmap'
-import { Route as RelatoriosRouteImport } from './routes/relatorios'
-import { Route as FluxoCaixaRouteImport } from './routes/fluxo-caixa'
-import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedSubprojetosRouteImport } from './routes/_authenticated/subprojetos'
+import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticated/roadmap'
+import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
+import { Route as AuthenticatedFluxoCaixaRouteImport } from './routes/_authenticated/fluxo-caixa'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 
-const SubprojetosRoute = SubprojetosRouteImport.update({
-  id: '/subprojetos',
-  path: '/subprojetos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RoadmapRoute = RoadmapRouteImport.update({
-  id: '/roadmap',
-  path: '/roadmap',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RelatoriosRoute = RelatoriosRouteImport.update({
-  id: '/relatorios',
-  path: '/relatorios',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FluxoCaixaRoute = FluxoCaixaRouteImport.update({
-  id: '/fluxo-caixa',
-  path: '/fluxo-caixa',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
-  id: '/configuracoes',
-  path: '/configuracoes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/_authenticated/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSubprojetosRoute =
+  AuthenticatedSubprojetosRouteImport.update({
+    id: '/_authenticated/subprojetos',
+    path: '/subprojetos',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedRoadmapRoute = AuthenticatedRoadmapRouteImport.update({
+  id: '/_authenticated/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
+  id: '/_authenticated/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedFluxoCaixaRoute = AuthenticatedFluxoCaixaRouteImport.update({
+  id: '/_authenticated/fluxo-caixa',
+  path: '/fluxo-caixa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/_authenticated/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/configuracoes': typeof ConfiguracoesRoute
-  '/fluxo-caixa': typeof FluxoCaixaRoute
-  '/relatorios': typeof RelatoriosRoute
-  '/roadmap': typeof RoadmapRoute
-  '/subprojetos': typeof SubprojetosRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/fluxo-caixa': typeof AuthenticatedFluxoCaixaRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/roadmap': typeof AuthenticatedRoadmapRoute
+  '/subprojetos': typeof AuthenticatedSubprojetosRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/configuracoes': typeof ConfiguracoesRoute
-  '/fluxo-caixa': typeof FluxoCaixaRoute
-  '/relatorios': typeof RelatoriosRoute
-  '/roadmap': typeof RoadmapRoute
-  '/subprojetos': typeof SubprojetosRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/fluxo-caixa': typeof AuthenticatedFluxoCaixaRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/roadmap': typeof AuthenticatedRoadmapRoute
+  '/subprojetos': typeof AuthenticatedSubprojetosRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/configuracoes': typeof ConfiguracoesRoute
-  '/fluxo-caixa': typeof FluxoCaixaRoute
-  '/relatorios': typeof RelatoriosRoute
-  '/roadmap': typeof RoadmapRoute
-  '/subprojetos': typeof SubprojetosRoute
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/_authenticated/fluxo-caixa': typeof AuthenticatedFluxoCaixaRoute
+  '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/_authenticated/roadmap': typeof AuthenticatedRoadmapRoute
+  '/_authenticated/subprojetos': typeof AuthenticatedSubprojetosRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/configuracoes'
     | '/fluxo-caixa'
     | '/relatorios'
     | '/roadmap'
     | '/subprojetos'
+    | '/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/configuracoes'
     | '/fluxo-caixa'
     | '/relatorios'
     | '/roadmap'
     | '/subprojetos'
+    | '/'
   id:
     | '__root__'
-    | '/'
-    | '/configuracoes'
-    | '/fluxo-caixa'
-    | '/relatorios'
-    | '/roadmap'
-    | '/subprojetos'
+    | '/_authenticated/configuracoes'
+    | '/_authenticated/fluxo-caixa'
+    | '/_authenticated/relatorios'
+    | '/_authenticated/roadmap'
+    | '/_authenticated/subprojetos'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  ConfiguracoesRoute: typeof ConfiguracoesRoute
-  FluxoCaixaRoute: typeof FluxoCaixaRoute
-  RelatoriosRoute: typeof RelatoriosRoute
-  RoadmapRoute: typeof RoadmapRoute
-  SubprojetosRoute: typeof SubprojetosRoute
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
+  AuthenticatedFluxoCaixaRoute: typeof AuthenticatedFluxoCaixaRoute
+  AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
+  AuthenticatedRoadmapRoute: typeof AuthenticatedRoadmapRoute
+  AuthenticatedSubprojetosRoute: typeof AuthenticatedSubprojetosRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/subprojetos': {
-      id: '/subprojetos'
-      path: '/subprojetos'
-      fullPath: '/subprojetos'
-      preLoaderRoute: typeof SubprojetosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/roadmap': {
-      id: '/roadmap'
-      path: '/roadmap'
-      fullPath: '/roadmap'
-      preLoaderRoute: typeof RoadmapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/relatorios': {
-      id: '/relatorios'
-      path: '/relatorios'
-      fullPath: '/relatorios'
-      preLoaderRoute: typeof RelatoriosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fluxo-caixa': {
-      id: '/fluxo-caixa'
-      path: '/fluxo-caixa'
-      fullPath: '/fluxo-caixa'
-      preLoaderRoute: typeof FluxoCaixaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/configuracoes': {
-      id: '/configuracoes'
-      path: '/configuracoes'
-      fullPath: '/configuracoes'
-      preLoaderRoute: typeof ConfiguracoesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/subprojetos': {
+      id: '/_authenticated/subprojetos'
+      path: '/subprojetos'
+      fullPath: '/subprojetos'
+      preLoaderRoute: typeof AuthenticatedSubprojetosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/roadmap': {
+      id: '/_authenticated/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof AuthenticatedRoadmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/relatorios': {
+      id: '/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/fluxo-caixa': {
+      id: '/_authenticated/fluxo-caixa'
+      path: '/fluxo-caixa'
+      fullPath: '/fluxo-caixa'
+      preLoaderRoute: typeof AuthenticatedFluxoCaixaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ConfiguracoesRoute: ConfiguracoesRoute,
-  FluxoCaixaRoute: FluxoCaixaRoute,
-  RelatoriosRoute: RelatoriosRoute,
-  RoadmapRoute: RoadmapRoute,
-  SubprojetosRoute: SubprojetosRoute,
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
+  AuthenticatedFluxoCaixaRoute: AuthenticatedFluxoCaixaRoute,
+  AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
+  AuthenticatedRoadmapRoute: AuthenticatedRoadmapRoute,
+  AuthenticatedSubprojetosRoute: AuthenticatedSubprojetosRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
