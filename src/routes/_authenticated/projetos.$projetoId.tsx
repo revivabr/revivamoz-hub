@@ -155,13 +155,37 @@ function ProjetoDashboard() {
   const fmt = (n: number) => `${Number(n).toLocaleString("pt-PT", { maximumFractionDigits: 2 })} ${projeto.moeda}`;
   const alertaTeto = totals.consumido >= 80;
 
+  const doExport = useServerFn(exportProjeto);
+  const exportar = async () => {
+    try {
+      const dump = await doExport({ data: { projetoId } });
+      const blob = new Blob([JSON.stringify(dump, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${projeto.nome.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Exportação concluída.");
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
   return (
     <DashboardLayout title={projeto.nome}>
       <div className="mb-4 flex items-center justify-between gap-3">
         <Link to="/subprojetos" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="mr-1 h-4 w-4" /> Voltar aos projetos
         </Link>
-        <Badge variant="outline">{projeto.estado}</Badge>
+        <div className="flex items-center gap-2">
+          {isGestor && (
+            <Button size="sm" variant="outline" onClick={exportar}>
+              <Download className="mr-1 h-4 w-4" /> Exportar dados
+            </Button>
+          )}
+          <Badge variant="outline">{projeto.estado}</Badge>
+        </div>
       </div>
 
       <div className="mb-4 grid gap-4 md:grid-cols-[280px_1fr] md:items-start">
