@@ -1,0 +1,108 @@
+import { Bell, Search, Moon, Sun, Languages, HelpCircle } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useTheme } from "@/lib/theme";
+import { useI18n } from "@/lib/i18n";
+import { useOnboarding } from "@/components/onboarding/OnboardingTour";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+export function AppHeader({ title }: { title: string }) {
+  const { theme, toggle } = useTheme();
+  const { t, locale, setLocale } = useI18n();
+  const { open: openTour } = useOnboarding();
+
+  return (
+    <header className="sticky top-0 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-card px-4 py-3 sm:gap-4 sm:px-6">
+      <div className="flex items-center gap-2">
+        <SidebarTrigger className="text-foreground" />
+        <h1 className="truncate text-base font-semibold tracking-tight text-foreground sm:text-lg">
+          {title}
+        </h1>
+      </div>
+
+      <div className="relative hidden min-w-0 md:block">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <input
+          type="search"
+          placeholder={t("header.search")}
+          className="h-9 w-full max-w-md rounded-lg border border-input bg-background pl-9 pr-3 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/30"
+        />
+      </div>
+
+      <div className="flex items-center gap-2 sm:gap-3">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="grid h-9 min-w-9 place-items-center gap-1 rounded-lg border border-border bg-background px-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+              aria-label={t("header.language")}
+            >
+              <span className="flex items-center gap-1">
+                <Languages className="h-4 w-4" />
+                <span className="hidden sm:inline">{locale === "pt-MZ" ? "PT-MZ" : "PT-BR"}</span>
+              </span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[10rem]">
+            <DropdownMenuItem onClick={() => setLocale("pt-MZ")}>
+              🇲🇿 Português (Moçambique)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setLocale("pt-BR")}>
+              🇧🇷 Português (Brasil)
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <button
+          type="button"
+          onClick={openTour}
+          className="hidden h-9 w-9 place-items-center rounded-lg border border-border bg-background text-muted-foreground transition hover:text-foreground sm:grid"
+          aria-label={t("header.help")}
+          title={t("header.help")}
+        >
+          <HelpCircle className="h-4 w-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={toggle}
+          className="grid h-9 w-9 place-items-center rounded-lg border border-border bg-background text-muted-foreground transition hover:text-foreground"
+          aria-label={theme === "dark" ? t("header.theme.light") : t("header.theme.dark")}
+          title={theme === "dark" ? t("header.theme.light") : t("header.theme.dark")}
+        >
+          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </button>
+
+        <button
+          type="button"
+          className="relative grid h-9 w-9 place-items-center rounded-lg border border-border bg-background text-muted-foreground transition hover:text-foreground"
+          aria-label={t("header.notifications")}
+        >
+          <Bell className="h-4 w-4" />
+          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-destructive" />
+        </button>
+
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-background py-1 pl-1 pr-2 sm:pr-3">
+          <Avatar className="h-7 w-7">
+            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+              JM
+            </AvatarFallback>
+          </Avatar>
+          <div className="hidden min-w-0 sm:block">
+            <div className="truncate text-xs font-semibold leading-tight text-foreground">
+              João Macuácua
+            </div>
+            <div className="truncate text-[10px] font-medium uppercase tracking-wide text-primary">
+              {t("header.role.superadmin")}
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
