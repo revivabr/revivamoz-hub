@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { AiProvedoresCard } from "@/components/configuracoes/AiProvedoresCard";
+import { Mail } from "lucide-react";
+import { testBrevoEmail } from "@/lib/notifications.functions";
 
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
