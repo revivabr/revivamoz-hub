@@ -82,7 +82,7 @@ function ProjetoDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projetos")
-        .select("id,nome,descricao,estado,orcamento,moeda,data_inicio,data_fim")
+        .select("id,nome,descricao,estado,orcamento,moeda,data_inicio,data_fim,logo_path")
         .eq("id", projetoId).maybeSingle();
       if (error) throw error;
       return data as Projeto | null;
