@@ -110,6 +110,48 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_runs: {
+        Row: {
+          created_at: string
+          error: string | null
+          file_path: string | null
+          finished_at: string | null
+          id: string
+          lancamentos_count: number | null
+          projetos_count: number | null
+          size_bytes: number | null
+          started_at: string
+          status: string
+          trigger: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          file_path?: string | null
+          finished_at?: string | null
+          id?: string
+          lancamentos_count?: number | null
+          projetos_count?: number | null
+          size_bytes?: number | null
+          started_at?: string
+          status?: string
+          trigger?: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          file_path?: string | null
+          finished_at?: string | null
+          id?: string
+          lancamentos_count?: number | null
+          projetos_count?: number | null
+          size_bytes?: number | null
+          started_at?: string
+          status?: string
+          trigger?: string
+        }
+        Relationships: []
+      }
       categorias: {
         Row: {
           cor: string | null
