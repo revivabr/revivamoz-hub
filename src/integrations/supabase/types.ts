@@ -294,6 +294,7 @@ export type Database = {
           moeda: string
           nome: string
           orcamento: number
+          tipo: Database["public"]["Enums"]["projeto_tipo"]
           updated_at: string
         }
         Insert: {
@@ -308,6 +309,7 @@ export type Database = {
           moeda?: string
           nome: string
           orcamento?: number
+          tipo?: Database["public"]["Enums"]["projeto_tipo"]
           updated_at?: string
         }
         Update: {
@@ -322,6 +324,7 @@ export type Database = {
           moeda?: string
           nome?: string
           orcamento?: number
+          tipo?: Database["public"]["Enums"]["projeto_tipo"]
           updated_at?: string
         }
         Relationships: []
@@ -404,6 +407,7 @@ export type Database = {
         | "concluido"
         | "cancelado"
       projeto_papel: "gestor" | "financiador" | "leitor"
+      projeto_tipo: "programa_social" | "projeto_sazonal"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -542,6 +546,7 @@ export const Constants = {
         "cancelado",
       ],
       projeto_papel: ["gestor", "financiador", "leitor"],
+      projeto_tipo: ["programa_social", "projeto_sazonal"],
     },
   },
 } as const
