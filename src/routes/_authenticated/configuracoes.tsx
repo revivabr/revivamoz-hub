@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { AiProvedoresCard } from "@/components/configuracoes/AiProvedoresCard";
+import { Mail } from "lucide-react";
+import { testBrevoEmail } from "@/lib/notifications.functions";
 
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
@@ -114,6 +116,7 @@ function SettingsPage() {
     <DashboardLayout title={t("nav.settings")}>
       <div className="space-y-6">
       <CreateUserCard />
+      <BrevoTestCard />
       <AiProvedoresCard />
       <Card>
         <CardHeader>
@@ -249,4 +252,40 @@ function CreateUserCard() {
     </Card>
   );
 }
+
+function BrevoTestCard() {
+  const send = useServerFn(testBrevoEmail);
+  const [to, setTo] = useState("");
+  const m = useMutation({
+    mutationFn: () => send({ data: { to } }),
+    onSuccess: () => toast.success("E-mail de teste enviado."),
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Mail className="h-5 w-5" /> Notificações por e-mail (Brevo)
+        </CardTitle>
+        <CardDescription>
+          Envie um e-mail de teste para confirmar que a integração está operacional. Remetente:
+          <code className="ml-1">info-noreplay@revivamoz.com</code>
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form
+          className="flex flex-col gap-3 sm:flex-row"
+          onSubmit={(e) => { e.preventDefault(); if (to) m.mutate(); }}
+        >
+          <Input type="email" required placeholder="destinatario@exemplo.com"
+            value={to} onChange={(e) => setTo(e.target.value)} className="sm:max-w-sm" />
+          <Button type="submit" disabled={m.isPending}>
+            <Mail className="mr-2 h-4 w-4" /> Enviar teste
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
 

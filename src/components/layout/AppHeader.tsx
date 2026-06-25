@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, Search, Moon, Sun, Languages, HelpCircle, LogOut } from "lucide-react";
+import { Search, Moon, Sun, Languages, HelpCircle, LogOut } from "lucide-react";
+import { NotificationsBell } from "@/components/notifications/NotificationsBell";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/lib/theme";
@@ -128,14 +129,7 @@ export function AppHeader({ title }: { title: string }) {
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </button>
 
-        <button
-          type="button"
-          className="relative grid h-9 w-9 place-items-center rounded-lg border border-border bg-background text-muted-foreground transition hover:text-foreground"
-          aria-label={t("header.notifications")}
-        >
-          <Bell className="h-4 w-4" />
-          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-destructive" />
-        </button>
+        <NotificationsBell />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
