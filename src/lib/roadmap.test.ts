@@ -33,7 +33,7 @@ describe("roadmapProgress", () => {
         { id: "2", title: "b", status: "done" },
       ] },
     ]);
-    expect(r.percent).toBe(100);
+    expect(r.pct).toBe(100);
   });
   it("returns 0% when nothing done", () => {
     const r = roadmapProgress([
@@ -41,7 +41,7 @@ describe("roadmapProgress", () => {
         { id: "1", title: "a", status: "todo" },
       ] },
     ]);
-    expect(r.percent).toBe(0);
+    expect(r.pct).toBe(0);
   });
   it("computes intermediate ratio", () => {
     const r = roadmapProgress([
@@ -52,12 +52,12 @@ describe("roadmapProgress", () => {
         { id: "4", title: "d", status: "done" },
       ] },
     ]);
-    expect(r.percent).toBe(50);
+    expect(r.pct).toBe(50);
   });
   it("uses the live roadmap by default and returns a numeric percent", () => {
     const r = roadmapProgress();
-    expect(typeof r.percent).toBe("number");
-    expect(r.percent).toBeGreaterThanOrEqual(0);
-    expect(r.percent).toBeLessThanOrEqual(100);
+    expect(typeof r.pct).toBe("number");
+    expect(r.pct).toBeGreaterThanOrEqual(0);
+    expect(r.pct).toBeLessThanOrEqual(100);
   });
 });
