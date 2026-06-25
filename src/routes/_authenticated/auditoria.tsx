@@ -12,6 +12,7 @@ import {
 import { listAuditLog, listBackupRuns, runBackupNow, getBackupDownloadUrl } from "@/lib/ops.functions";
 import { ShieldAlert, Download, PlayCircle, Database } from "lucide-react";
 import { toast } from "sonner";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
 export const Route = createFileRoute("/_authenticated/auditoria")({
   component: AuditoriaPage,
