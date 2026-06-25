@@ -25,6 +25,11 @@ export function AppSidebar() {
   const { t } = useI18n();
   const { isMobile, setOpenMobile } = useSidebar();
 
+  useEffect(() => {
+    if (isMobile) setOpenMobile(false);
+  }, [pathname, isMobile, setOpenMobile]);
+
+
 
   const items = [
     { titleKey: "nav.overview", url: "/", icon: LayoutDashboard },
