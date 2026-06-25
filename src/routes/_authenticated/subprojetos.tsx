@@ -167,7 +167,7 @@ function SubprojectsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1 text-xs text-muted-foreground">
-                {p.tipo === "programa_social" ? "Doações mensais" : "Orçamento"}:{" "}
+                {p.tipo === "programa_social" ? "Doações mensais" : p.tipo === "caixa_administrativo" ? "Saldo inicial" : "Orçamento"}:{" "}
                 <span className="font-medium text-foreground">
                   {Number(p.orcamento).toLocaleString("pt-PT")} {p.moeda}
                 </span>
