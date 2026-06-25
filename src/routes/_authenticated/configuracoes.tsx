@@ -1,16 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Settings, Shield, Trash2, UserPlus } from "lucide-react";
+import { Settings, Shield, Trash2, UserPlus, KeyRound } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { EmptyState } from "@/components/empty-state/EmptyState";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { adminCreateUser } from "@/lib/admin-users.functions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({
@@ -107,6 +111,8 @@ function SettingsPage() {
 
   return (
     <DashboardLayout title={t("nav.settings")}>
+      <div className="space-y-6">
+      <CreateUserCard />
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -182,6 +188,63 @@ function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </DashboardLayout>
   );
 }
+
+function CreateUserCard() {
+  const createUser = useServerFn(adminCreateUser);
+  const [form, setForm] = useState({ fullName: "", email: "", password: "" });
+  const mutation = useMutation({
+    mutationFn: () => createUser({ data: form }),
+    onSuccess: () => {
+      toast.success("Utilizador criado. Já pode iniciar sessão.");
+      setForm({ fullName: "", email: "", password: "" });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <KeyRound className="h-5 w-5" /> Criar utilizador
+        </CardTitle>
+        <CardDescription>
+          Emita credenciais para utilizadores autorizados. O acesso a projetos é depois concedido
+          através de convites no painel de cada projeto.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form
+          className="grid gap-3 sm:grid-cols-2"
+          onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }}
+        >
+          <div className="space-y-1 sm:col-span-2">
+            <Label>Nome completo</Label>
+            <Input required value={form.fullName}
+              onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
+          </div>
+          <div className="space-y-1">
+            <Label>Email</Label>
+            <Input type="email" required value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          </div>
+          <div className="space-y-1">
+            <Label>Palavra-passe inicial</Label>
+            <Input type="text" minLength={8} required value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })} />
+          </div>
+          <div className="sm:col-span-2">
+            <Button type="submit" disabled={mutation.isPending}>
+              <UserPlus className="mr-2 h-4 w-4" />
+              Criar utilizador
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
