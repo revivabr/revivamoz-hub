@@ -162,6 +162,24 @@ function ProjetoDashboard() {
         <Badge variant="outline">{projeto.estado}</Badge>
       </div>
 
+      <div className="mb-4 grid gap-4 md:grid-cols-[280px_1fr] md:items-start">
+        <div className="space-y-2">
+          {isGestor ? (
+            <ProjetoLogoUploader
+              projetoId={projeto.id}
+              nome={projeto.nome}
+              logoPath={projeto.logo_path}
+              onChanged={() => qc.invalidateQueries({ queryKey: ["projeto", projetoId] })}
+            />
+          ) : (
+            <ProjetoLogo projetoId={projeto.id} nome={projeto.nome} logoPath={projeto.logo_path} />
+          )}
+        </div>
+        {projeto.descricao && (
+          <p className="text-sm text-muted-foreground">{projeto.descricao}</p>
+        )}
+      </div>
+
       {/* KPIs */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard label="Entradas" value={fmt(totals.entradas)} icon={TrendingUp} tone="ok" />
