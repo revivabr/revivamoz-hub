@@ -118,7 +118,7 @@ export const assistenteAsk = createServerFn({ method: "POST" })
       return {
         nome: p.nome,
         tipo: p.tipo,
-        orcamento: p.orcamento_total,
+        orcamento: p.orcamento,
         entradas, saidas,
         saldo: entradas - saidas,
       };
