@@ -72,6 +72,10 @@ function AuditoriaPage() {
         <p className="text-sm text-muted-foreground">Quem fez o quê e quando — registado automaticamente.</p>
       </div>
 
+      <BackupsCard />
+
+
+
       <Card>
         <CardContent className="flex flex-col gap-3 py-4 sm:flex-row">
           <Select value={tabela || "all"} onValueChange={(v) => setTabela(v === "all" ? "" : v)}>
