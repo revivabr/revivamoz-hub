@@ -3,8 +3,10 @@ import { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft, Plus, Trash2, Upload, FileText, AlertTriangle, Layers, Wallet,
-  TrendingUp, TrendingDown, Image as ImageIcon,
+  TrendingUp, TrendingDown, Image as ImageIcon, Download,
 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { exportProjeto } from "@/lib/ops.functions";
 import { toast } from "sonner";
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -153,13 +155,37 @@ function ProjetoDashboard() {
   const fmt = (n: number) => `${Number(n).toLocaleString("pt-PT", { maximumFractionDigits: 2 })} ${projeto.moeda}`;
   const alertaTeto = totals.consumido >= 80;
 
+  const doExport = useServerFn(exportProjeto);
+  const exportar = async () => {
+    try {
+      const dump = await doExport({ data: { projetoId } });
+      const blob = new Blob([JSON.stringify(dump, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${projeto.nome.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Exportação concluída.");
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
   return (
     <DashboardLayout title={projeto.nome}>
       <div className="mb-4 flex items-center justify-between gap-3">
         <Link to="/subprojetos" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="mr-1 h-4 w-4" /> Voltar aos projetos
         </Link>
-        <Badge variant="outline">{projeto.estado}</Badge>
+        <div className="flex items-center gap-2">
+          {isGestor && (
+            <Button size="sm" variant="outline" onClick={exportar}>
+              <Download className="mr-1 h-4 w-4" /> Exportar dados
+            </Button>
+          )}
+          <Badge variant="outline">{projeto.estado}</Badge>
+        </div>
       </div>
 
       <div className="mb-4 grid gap-4 md:grid-cols-[280px_1fr] md:items-start">
@@ -283,15 +309,7 @@ function NovoLancamento({
 
   const mutate = useMutation({
     mutationFn: async () => {
-      let comprovante_path: string | null = null;
-      const file = fileRef.current?.files?.[0];
-      if (file) {
-        const path = `${projetoId}/${crypto.randomUUID()}-${file.name}`;
-        const { error } = await supabase.storage.from("comprovantes").upload(path, file);
-        if (error) throw error;
-        comprovante_path = path;
-      }
-      const { error } = await supabase.from("lancamentos").insert({
+      const payload = {
         projeto_id: projetoId,
         tipo: form.tipo,
         data: form.data,
@@ -299,13 +317,30 @@ function NovoLancamento({
         descricao: form.descricao.trim() || null,
         categoria_id: form.categoria_id || null,
         etapa_id: form.etapa_id || null,
-        comprovante_path,
         created_by: userId,
-      });
+      };
+      const file = fileRef.current?.files?.[0];
+
+      // Offline: enfileira sem comprovante (upload requer ligação).
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        const { queueLancamento } = await import("@/lib/offline-queue");
+        queueLancamento(payload);
+        return { offline: true };
+      }
+
+      let comprovante_path: string | null = null;
+      if (file) {
+        const path = `${projetoId}/${crypto.randomUUID()}-${file.name}`;
+        const { error } = await supabase.storage.from("comprovantes").upload(path, file);
+        if (error) throw error;
+        comprovante_path = path;
+      }
+      const { error } = await supabase.from("lancamentos").insert({ ...payload, comprovante_path });
       if (error) throw error;
+      return { offline: false };
     },
-    onSuccess: () => {
-      toast.success("Lançamento registado.");
+    onSuccess: (res) => {
+      toast.success(res?.offline ? "Sem ligação — guardado para sincronizar." : "Lançamento registado.");
       setForm({ tipo: "saida", data: new Date().toISOString().slice(0, 10), valor: "", descricao: "", categoria_id: "", etapa_id: "" });
       if (fileRef.current) fileRef.current.value = "";
       setOpen(false);

@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Workflow, Wallet, FileBarChart, Settings, Sprout, ListChecks, Sparkles, Brain } from "lucide-react";
+import { LayoutDashboard, Workflow, Wallet, FileBarChart, Settings, Sprout, ListChecks, Sparkles, Brain, ShieldCheck } from "lucide-react";
 
 import {
   Sidebar,
@@ -25,6 +25,7 @@ export function AppSidebar() {
     { titleKey: "nav.reports", url: "/relatorios", icon: FileBarChart },
     { titleKey: "nav.assistant", url: "/assistente", icon: Sparkles },
     { titleKey: "nav.intelligence", url: "/inteligencia", icon: Brain },
+    { titleKey: "nav.audit", url: "/auditoria", icon: ShieldCheck },
     { titleKey: "nav.roadmap", url: "/roadmap", icon: ListChecks },
     { titleKey: "nav.settings", url: "/configuracoes", icon: Settings },
   ] as const;

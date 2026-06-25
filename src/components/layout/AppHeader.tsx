@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Search, Moon, Sun, Languages, HelpCircle, LogOut } from "lucide-react";
 import { NotificationsBell } from "@/components/notifications/NotificationsBell";
+import { OfflineBadge } from "@/components/layout/OfflineBadge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/lib/theme";
@@ -129,6 +130,7 @@ export function AppHeader({ title }: { title: string }) {
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </button>
 
+        <OfflineBadge />
         <NotificationsBell />
 
         <DropdownMenu>

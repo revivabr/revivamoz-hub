@@ -71,6 +71,45 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_log: {
+        Row: {
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          operation: string
+          projeto_id: string | null
+          record_id: string | null
+          table_name: string
+        }
+        Insert: {
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          operation: string
+          projeto_id?: string | null
+          record_id?: string | null
+          table_name: string
+        }
+        Update: {
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          operation?: string
+          projeto_id?: string | null
+          record_id?: string | null
+          table_name?: string
+        }
+        Relationships: []
+      }
       categorias: {
         Row: {
           cor: string | null

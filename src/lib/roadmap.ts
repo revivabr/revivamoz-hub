@@ -106,11 +106,11 @@ export const roadmap: RoadmapPhase[] = [
     title: "Fase 8 — Operação e Confiança",
     goal: "Sistema pronto para o dia-a-dia em Moçambique.",
     tasks: [
-      { id: "8.1", title: "Notificações (email/in-app) de alertas e aprovações", status: "todo" },
-      { id: "8.2", title: "Trilho de auditoria (quem fez o quê e quando)", status: "todo" },
-      { id: "8.3", title: "Backups e exportação total de dados do projeto", status: "todo" },
-      { id: "8.4", title: "PWA / instalação no telemóvel para uso em campo", status: "todo" },
-      { id: "8.5", title: "Modo offline básico para lançamentos no terreno", status: "todo" },
+      { id: "8.1", title: "Notificações (email/in-app) de alertas e aprovações", status: "done" },
+      { id: "8.2", title: "Trilho de auditoria (quem fez o quê e quando)", status: "done" },
+      { id: "8.3", title: "Backups e exportação total de dados do projeto", status: "done" },
+      { id: "8.4", title: "PWA / instalação no telemóvel para uso em campo", status: "done" },
+      { id: "8.5", title: "Modo offline básico para lançamentos no terreno", status: "done" },
     ],
   },
 ];
