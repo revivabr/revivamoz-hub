@@ -170,6 +170,10 @@ function ProjetoDashboard() {
         </Card>
       </div>
 
+      <CategoriaPies lancamentos={lancamentos} categorias={categorias} fmt={fmt} />
+
+
+
       <Tabs defaultValue="lancamentos" className="mt-6">
         <TabsList>
           <TabsTrigger value="lancamentos">Lançamentos</TabsTrigger>
