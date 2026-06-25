@@ -82,10 +82,10 @@ export const roadmap: RoadmapPhase[] = [
     title: "Fase 6 — Relatórios e Portal do Financiador",
     goal: "Prestação de contas transparente e exportável.",
     tasks: [
-      { id: "6.1", title: "Relatórios financeiros por projeto e período", status: "todo" },
-      { id: "6.2", title: "Exportação em PDF e Excel com identidade Reviva Moz", status: "todo" },
-      { id: "6.3", title: "Portal somente-leitura para o Financiador", status: "todo" },
-      { id: "6.4", title: "Partilha por link seguro com expiração", status: "todo" },
+      { id: "6.1", title: "Relatórios financeiros por projeto e período", status: "done" },
+      { id: "6.2", title: "Exportação em PDF e Excel com identidade Reviva Moz", status: "done" },
+      { id: "6.3", title: "Portal somente-leitura para o Financiador", status: "done" },
+      { id: "6.4", title: "Partilha por link seguro com expiração", status: "done" },
     ],
   },
   {

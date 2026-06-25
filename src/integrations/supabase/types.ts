@@ -329,6 +329,53 @@ export type Database = {
         }
         Relationships: []
       }
+      relatorio_partilhas: {
+        Row: {
+          created_at: string
+          created_by: string
+          data_fim: string
+          data_inicio: string
+          expires_at: string
+          id: string
+          projeto_id: string
+          revoked: boolean
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          data_fim: string
+          data_inicio: string
+          expires_at: string
+          id?: string
+          projeto_id: string
+          revoked?: boolean
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          data_fim?: string
+          data_inicio?: string
+          expires_at?: string
+          id?: string
+          projeto_id?: string
+          revoked?: boolean
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "relatorio_partilhas_projeto_id_fkey"
+            columns: ["projeto_id"]
+            isOneToOne: false
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       super_admin_seed: {
         Row: {
           created_at: string
@@ -371,6 +418,7 @@ export type Database = {
     }
     Functions: {
       accept_projeto_convite: { Args: { _convite_id: string }; Returns: string }
+      get_relatorio_publico: { Args: { _token: string }; Returns: Json }
       grant_super_admin_by_email: { Args: { _email: string }; Returns: string }
       has_role: {
         Args: {
