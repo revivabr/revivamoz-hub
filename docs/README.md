@@ -12,7 +12,7 @@ organização **Reviva Moz**. Construída em **TanStack Start** (React 19 + Vite
 4. [Funcionalidades](./FEATURES.md) — módulos do app, fluxos principais
 5. [Manual do Utilizador](./USER_GUIDE.md) — guia passo a passo por perfil
 6. [Deployment](./DEPLOYMENT.md) — publicação, variáveis, cron, backups
-7. [Migrations SQL](./sql/) — scripts completos para recriar a base do zero
+7. [Migrations SQL](./MIGRATIONS.md) — scripts completos para recriar a base do zero (`docs/sql/`)
 
 ## TL;DR
 
