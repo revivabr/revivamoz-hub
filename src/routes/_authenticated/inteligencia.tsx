@@ -33,28 +33,9 @@ type Lanc = {
   projeto_id: string;
 };
 
-function ymKey(d: string) {
-  return d.slice(0, 7); // YYYY-MM
-}
-
-function linearRegression(points: Array<{ x: number; y: number }>) {
-  const n = points.length;
-  if (n < 2) return { a: 0, b: points[0]?.y ?? 0 };
-  const sx = points.reduce((s, p) => s + p.x, 0);
-  const sy = points.reduce((s, p) => s + p.y, 0);
-  const sxy = points.reduce((s, p) => s + p.x * p.y, 0);
-  const sxx = points.reduce((s, p) => s + p.x * p.x, 0);
-  const denom = n * sxx - sx * sx || 1;
-  const a = (n * sxy - sx * sy) / denom;
-  const b = (sy - a * sx) / n;
-  return { a, b };
-}
-
-function addMonths(ym: string, k: number) {
-  const [y, m] = ym.split("-").map(Number);
-  const d = new Date(y, m - 1 + k, 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-}
+import { linearRegression, predict } from "@/lib/stats/regression";
+import { meanStddev } from "@/lib/stats/zscore";
+import { ymKey, addMonths } from "@/lib/stats/month";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("pt-PT", { maximumFractionDigits: 0 }).format(n);
@@ -128,21 +109,19 @@ function InteligenciaPage() {
     }));
 
     // Previsão linear próximos 3 meses
-    const { a, b } = linearRegression(series.map((s) => ({ x: s.x, y: s.valor })));
+    const fit = linearRegression(series.map((s) => ({ x: s.x, y: s.valor })));
     const ultimoYm = meses[meses.length - 1];
     const futuros = [1, 2, 3].map((k) => ({
       ym: addMonths(ultimoYm, k),
       x: series.length - 1 + k,
-      valor: a * (series.length - 1 + k) + b,
+      valor: predict(fit, series.length - 1 + k),
       tipo: "previsto" as const,
     }));
     const previsao = [...series.map(({ ym, valor, tipo }) => ({ ym, valor, tipo })), ...futuros.map(({ ym, valor, tipo }) => ({ ym, valor, tipo }))];
 
     // Anomalias: z-score em saídas
     const saidas = lancamentos.filter((l) => l.tipo === "saida");
-    const valores = saidas.map((l) => Number(l.valor));
-    const media = valores.reduce((s, v) => s + v, 0) / (valores.length || 1);
-    const desvio = Math.sqrt(valores.reduce((s, v) => s + (v - media) ** 2, 0) / (valores.length || 1));
+    const { mean: media, stddev: desvio } = meanStddev(saidas.map((l) => Number(l.valor)));
     const anomalias = desvio > 0
       ? saidas.filter((l) => (Number(l.valor) - media) / desvio > 2).sort((x, y) => Number(y.valor) - Number(x.valor)).slice(0, 8)
       : [];
@@ -170,7 +149,7 @@ function InteligenciaPage() {
       const pct = saidasTotal > 0 ? (valor / saidasTotal) * 100 : 0;
       if (pct > 35) sugestoes.push(`A categoria "${nome}" representa ${pct.toFixed(1)}% das despesas — avalie renegociar ou redistribuir.`);
     }
-    if (a < 0 && saldo > 0) sugestoes.push("Tendência de saldo mensal a descer. Reforce captação de doações ou reduza saídas recorrentes.");
+    if (fit.a < 0 && saldo > 0) sugestoes.push("Tendência de saldo mensal a descer. Reforce captação de doações ou reduza saídas recorrentes.");
     if (sugestoes.length === 0) sugestoes.push("Sem alertas relevantes. Continue a monitorizar o consumo mensal.");
 
     return { previsao, anomalias, sugestoes, kpis: { entradas, saidas: saidasTotal, saldo } };
