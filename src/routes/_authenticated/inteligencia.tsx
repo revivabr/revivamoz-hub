@@ -33,28 +33,9 @@ type Lanc = {
   projeto_id: string;
 };
 
-function ymKey(d: string) {
-  return d.slice(0, 7); // YYYY-MM
-}
-
-function linearRegression(points: Array<{ x: number; y: number }>) {
-  const n = points.length;
-  if (n < 2) return { a: 0, b: points[0]?.y ?? 0 };
-  const sx = points.reduce((s, p) => s + p.x, 0);
-  const sy = points.reduce((s, p) => s + p.y, 0);
-  const sxy = points.reduce((s, p) => s + p.x * p.y, 0);
-  const sxx = points.reduce((s, p) => s + p.x * p.x, 0);
-  const denom = n * sxx - sx * sx || 1;
-  const a = (n * sxy - sx * sy) / denom;
-  const b = (sy - a * sx) / n;
-  return { a, b };
-}
-
-function addMonths(ym: string, k: number) {
-  const [y, m] = ym.split("-").map(Number);
-  const d = new Date(y, m - 1 + k, 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-}
+import { linearRegression, predict } from "@/lib/stats/regression";
+import { meanStddev } from "@/lib/stats/zscore";
+import { ymKey, addMonths } from "@/lib/stats/month";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("pt-PT", { maximumFractionDigits: 0 }).format(n);
