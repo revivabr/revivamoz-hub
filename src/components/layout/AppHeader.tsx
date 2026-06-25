@@ -137,21 +137,39 @@ export function AppHeader({ title }: { title: string }) {
           <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-destructive" />
         </button>
 
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-background py-1 pl-1 pr-2 sm:pr-3">
-          <Avatar className="h-7 w-7">
-            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
-              JM
-            </AvatarFallback>
-          </Avatar>
-          <div className="hidden min-w-0 sm:block">
-            <div className="truncate text-xs font-semibold leading-tight text-foreground">
-              João Macuácua
-            </div>
-            <div className="truncate text-[10px] font-medium uppercase tracking-wide text-primary">
-              {t("header.role.superadmin")}
-            </div>
-          </div>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-lg border border-border bg-background py-1 pl-1 pr-2 transition hover:bg-accent sm:pr-3"
+            >
+              <Avatar className="h-7 w-7">
+                {profile.avatar ? <AvatarImage src={profile.avatar} alt={profile.name} /> : null}
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="hidden min-w-0 text-left sm:block">
+                <div className="truncate text-xs font-semibold leading-tight text-foreground">
+                  {profile.name || "—"}
+                </div>
+                <div className="truncate text-[10px] font-medium uppercase tracking-wide text-primary">
+                  {profile.email}
+                </div>
+              </div>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[12rem]">
+            <DropdownMenuItem onClick={() => navigate({ to: "/configuracoes" })}>
+              {t("nav.settings")}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+              <LogOut className="mr-2 h-4 w-4" />
+              Terminar sessão
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
