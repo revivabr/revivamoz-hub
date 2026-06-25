@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_provedores: {
+        Row: {
+          api_key: string
+          base_url: string | null
+          default_model: string
+          enabled: boolean
+          provedor: Database["public"]["Enums"]["ai_provedor_tipo"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          api_key: string
+          base_url?: string | null
+          default_model: string
+          enabled?: boolean
+          provedor: Database["public"]["Enums"]["ai_provedor_tipo"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          api_key?: string
+          base_url?: string | null
+          default_model?: string
+          enabled?: boolean
+          provedor?: Database["public"]["Enums"]["ai_provedor_tipo"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      assistente_conversas: {
+        Row: {
+          created_at: string
+          id: string
+          mensagens: Json
+          titulo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mensagens?: Json
+          titulo?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mensagens?: Json
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       categorias: {
         Row: {
           cor: string | null
@@ -435,6 +492,14 @@ export type Database = {
         Args: { _projeto_id: string; _user_id: string }
         Returns: boolean
       }
+      list_ai_provedores_publico: {
+        Args: never
+        Returns: {
+          default_model: string
+          enabled: boolean
+          provedor: Database["public"]["Enums"]["ai_provedor_tipo"]
+        }[]
+      }
       list_super_admins: {
         Args: never
         Returns: {
@@ -445,6 +510,7 @@ export type Database = {
       revoke_super_admin_by_email: { Args: { _email: string }; Returns: string }
     }
     Enums: {
+      ai_provedor_tipo: "openai" | "gemini" | "opencode_go"
       app_role: "super_admin" | "gestor" | "financiador"
       convite_estado: "pendente" | "aceite" | "revogado"
       lancamento_tipo: "entrada" | "saida"
@@ -583,6 +649,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      ai_provedor_tipo: ["openai", "gemini", "opencode_go"],
       app_role: ["super_admin", "gestor", "financiador"],
       convite_estado: ["pendente", "aceite", "revogado"],
       lancamento_tipo: ["entrada", "saida"],
