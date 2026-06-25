@@ -138,6 +138,7 @@ function DashboardPage() {
                   <SelectItem value="all">Todas</SelectItem>
                   <SelectItem value="programa_social">Programa Social</SelectItem>
                   <SelectItem value="projeto_sazonal">Projeto Sazonal</SelectItem>
+                  <SelectItem value="caixa_administrativo">Caixa Administrativo</SelectItem>
                 </SelectContent>
               </Select>
             </div>
