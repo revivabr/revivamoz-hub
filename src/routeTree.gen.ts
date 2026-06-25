@@ -15,6 +15,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedSubprojetosRouteImport } from './routes/_authenticated/subprojetos'
 import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticated/roadmap'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
+import { Route as AuthenticatedInteligenciaRouteImport } from './routes/_authenticated/inteligencia'
 import { Route as AuthenticatedFluxoCaixaRouteImport } from './routes/_authenticated/fluxo-caixa'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedAssistenteRouteImport } from './routes/_authenticated/assistente'
@@ -51,6 +52,12 @@ const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
   path: '/relatorios',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInteligenciaRoute =
+  AuthenticatedInteligenciaRouteImport.update({
+    id: '/inteligencia',
+    path: '/inteligencia',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFluxoCaixaRoute = AuthenticatedFluxoCaixaRouteImport.update({
   id: '/fluxo-caixa',
   path: '/fluxo-caixa',
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/assistente': typeof AuthenticatedAssistenteRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/fluxo-caixa': typeof AuthenticatedFluxoCaixaRoute
+  '/inteligencia': typeof AuthenticatedInteligenciaRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/roadmap': typeof AuthenticatedRoadmapRoute
   '/subprojetos': typeof AuthenticatedSubprojetosRoute
@@ -96,6 +104,7 @@ export interface FileRoutesByTo {
   '/assistente': typeof AuthenticatedAssistenteRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/fluxo-caixa': typeof AuthenticatedFluxoCaixaRoute
+  '/inteligencia': typeof AuthenticatedInteligenciaRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/roadmap': typeof AuthenticatedRoadmapRoute
   '/subprojetos': typeof AuthenticatedSubprojetosRoute
@@ -110,6 +119,7 @@ export interface FileRoutesById {
   '/_authenticated/assistente': typeof AuthenticatedAssistenteRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/fluxo-caixa': typeof AuthenticatedFluxoCaixaRoute
+  '/_authenticated/inteligencia': typeof AuthenticatedInteligenciaRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/roadmap': typeof AuthenticatedRoadmapRoute
   '/_authenticated/subprojetos': typeof AuthenticatedSubprojetosRoute
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/assistente'
     | '/configuracoes'
     | '/fluxo-caixa'
+    | '/inteligencia'
     | '/relatorios'
     | '/roadmap'
     | '/subprojetos'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
     | '/assistente'
     | '/configuracoes'
     | '/fluxo-caixa'
+    | '/inteligencia'
     | '/relatorios'
     | '/roadmap'
     | '/subprojetos'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assistente'
     | '/_authenticated/configuracoes'
     | '/_authenticated/fluxo-caixa'
+    | '/_authenticated/inteligencia'
     | '/_authenticated/relatorios'
     | '/_authenticated/roadmap'
     | '/_authenticated/subprojetos'
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/inteligencia': {
+      id: '/_authenticated/inteligencia'
+      path: '/inteligencia'
+      fullPath: '/inteligencia'
+      preLoaderRoute: typeof AuthenticatedInteligenciaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/fluxo-caixa': {
       id: '/_authenticated/fluxo-caixa'
       path: '/fluxo-caixa'
@@ -249,6 +269,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAssistenteRoute: typeof AuthenticatedAssistenteRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedFluxoCaixaRoute: typeof AuthenticatedFluxoCaixaRoute
+  AuthenticatedInteligenciaRoute: typeof AuthenticatedInteligenciaRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedRoadmapRoute: typeof AuthenticatedRoadmapRoute
   AuthenticatedSubprojetosRoute: typeof AuthenticatedSubprojetosRoute
@@ -260,6 +281,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAssistenteRoute: AuthenticatedAssistenteRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedFluxoCaixaRoute: AuthenticatedFluxoCaixaRoute,
+  AuthenticatedInteligenciaRoute: AuthenticatedInteligenciaRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedRoadmapRoute: AuthenticatedRoadmapRoute,
   AuthenticatedSubprojetosRoute: AuthenticatedSubprojetosRoute,
