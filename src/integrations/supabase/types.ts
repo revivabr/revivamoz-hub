@@ -47,6 +47,47 @@ export type Database = {
         }
         Relationships: []
       }
+      projeto_convites: {
+        Row: {
+          accepted_at: string | null
+          convidado_por: string
+          created_at: string
+          email: string
+          estado: Database["public"]["Enums"]["convite_estado"]
+          id: string
+          papel: Database["public"]["Enums"]["projeto_papel"]
+          projeto_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          convidado_por: string
+          created_at?: string
+          email: string
+          estado?: Database["public"]["Enums"]["convite_estado"]
+          id?: string
+          papel?: Database["public"]["Enums"]["projeto_papel"]
+          projeto_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          convidado_por?: string
+          created_at?: string
+          email?: string
+          estado?: Database["public"]["Enums"]["convite_estado"]
+          id?: string
+          papel?: Database["public"]["Enums"]["projeto_papel"]
+          projeto_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projeto_convites_projeto_id_fkey"
+            columns: ["projeto_id"]
+            isOneToOne: false
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projeto_membros: {
         Row: {
           created_at: string
@@ -162,6 +203,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_projeto_convite: { Args: { _convite_id: string }; Returns: string }
       grant_super_admin_by_email: { Args: { _email: string }; Returns: string }
       has_role: {
         Args: {
@@ -189,6 +231,7 @@ export type Database = {
     }
     Enums: {
       app_role: "super_admin" | "gestor" | "financiador"
+      convite_estado: "pendente" | "aceite" | "revogado"
       projeto_estado:
         | "planeado"
         | "ativo"
@@ -324,6 +367,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "gestor", "financiador"],
+      convite_estado: ["pendente", "aceite", "revogado"],
       projeto_estado: [
         "planeado",
         "ativo",
