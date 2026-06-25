@@ -135,12 +135,13 @@ function BackupsCard() {
 
   const { data: runs, refetch, isLoading } = useQuery({
     queryKey: ["backup-runs"],
-    queryFn: () => fetchRuns({ data: {} }),
+    queryFn: () => fetchRuns(),
   });
 
   const trigger = useMutation({
-    mutationFn: () => runNow({ data: {} }),
+    mutationFn: () => runNow(),
     onSuccess: () => { toast.success("Backup executado."); refetch(); },
+
     onError: (e: Error) => toast.error(e.message),
   });
 
