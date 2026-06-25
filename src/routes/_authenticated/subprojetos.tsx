@@ -19,6 +19,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { ProjetoLogo, ProjetoLogoUploader } from "@/components/projetos/ProjetoLogo";
 
 export const Route = createFileRoute("/_authenticated/subprojetos")({
   head: () => ({
@@ -40,6 +41,7 @@ type Projeto = {
   data_inicio: string | null;
   data_fim: string | null;
   created_by: string;
+  logo_path: string | null;
 };
 
 type Membro = {
@@ -105,7 +107,7 @@ function SubprojectsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projetos")
-        .select("id,nome,descricao,estado,orcamento,moeda,data_inicio,data_fim,created_by")
+        .select("id,nome,descricao,estado,orcamento,moeda,data_inicio,data_fim,created_by,logo_path")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Projeto[];
@@ -154,6 +156,9 @@ function SubprojectsPage() {
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {projetos.map((p) => (
             <Card key={p.id} className="flex h-full flex-col transition hover:border-primary/60">
+              <div className="p-3 pb-0">
+                <ProjetoLogo projetoId={p.id} nome={p.nome} logoPath={p.logo_path} />
+              </div>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-base">{p.nome}</CardTitle>
@@ -383,6 +388,19 @@ function ProjetoDetailDialog({
       </DialogHeader>
 
       <div className="space-y-5">
+        {isGestor ? (
+          <section>
+            <h3 className="mb-2 text-sm font-semibold">Logótipo do projeto</h3>
+            <ProjetoLogoUploader
+              projetoId={projeto.id}
+              nome={projeto.nome}
+              logoPath={projeto.logo_path}
+              onChanged={() => qc.invalidateQueries({ queryKey: ["projetos"] })}
+            />
+          </section>
+        ) : (
+          <ProjetoLogo projetoId={projeto.id} nome={projeto.nome} logoPath={projeto.logo_path} />
+        )}
         <section>
           <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold">
             <Users className="h-4 w-4" /> Membros ({membros.length})

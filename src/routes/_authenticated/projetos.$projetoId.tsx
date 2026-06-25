@@ -23,6 +23,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { ProjetoLogo, ProjetoLogoUploader } from "@/components/projetos/ProjetoLogo";
 
 export const Route = createFileRoute("/_authenticated/projetos/$projetoId")({
   head: () => ({
@@ -45,6 +46,7 @@ type Projeto = {
   estado: "planeado" | "ativo" | "pausado" | "concluido" | "cancelado";
   orcamento: number; moeda: string;
   data_inicio: string | null; data_fim: string | null;
+  logo_path: string | null;
 };
 type Categoria = { id: string; nome: string; tipo: "entrada" | "saida"; projeto_id: string | null };
 type Etapa = {
@@ -81,7 +83,7 @@ function ProjetoDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projetos")
-        .select("id,nome,descricao,estado,orcamento,moeda,data_inicio,data_fim")
+        .select("id,nome,descricao,estado,orcamento,moeda,data_inicio,data_fim,logo_path")
         .eq("id", projetoId).maybeSingle();
       if (error) throw error;
       return data as Projeto | null;
@@ -158,6 +160,24 @@ function ProjetoDashboard() {
           <ArrowLeft className="mr-1 h-4 w-4" /> Voltar aos projetos
         </Link>
         <Badge variant="outline">{projeto.estado}</Badge>
+      </div>
+
+      <div className="mb-4 grid gap-4 md:grid-cols-[280px_1fr] md:items-start">
+        <div className="space-y-2">
+          {isGestor ? (
+            <ProjetoLogoUploader
+              projetoId={projeto.id}
+              nome={projeto.nome}
+              logoPath={projeto.logo_path}
+              onChanged={() => qc.invalidateQueries({ queryKey: ["projeto", projetoId] })}
+            />
+          ) : (
+            <ProjetoLogo projetoId={projeto.id} nome={projeto.nome} logoPath={projeto.logo_path} />
+          )}
+        </div>
+        {projeto.descricao && (
+          <p className="text-sm text-muted-foreground">{projeto.descricao}</p>
+        )}
       </div>
 
       {/* KPIs */}
