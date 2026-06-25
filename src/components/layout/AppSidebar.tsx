@@ -42,7 +42,7 @@ export function AppSidebar() {
           <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-white">
             <img src={logoUrl} alt="Reviva Moz" className="h-full w-full object-cover" />
           </div>
-          <div className="min-w-0 group-data-[collapsible=icon]:hidden">
+          <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
             <div className="truncate text-sm font-bold tracking-tight text-sidebar-foreground">
               Reviva Moz
             </div>
@@ -50,7 +50,18 @@ export function AppSidebar() {
               {t("brand.tagline")}
             </div>
           </div>
+          {isMobile ? (
+            <button
+              type="button"
+              onClick={() => setOpenMobile(false)}
+              aria-label="Fechar menu"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-sidebar-foreground/80 transition hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          ) : null}
         </div>
+
       </SidebarHeader>
 
       <SidebarContent>
