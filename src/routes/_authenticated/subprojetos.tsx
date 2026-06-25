@@ -270,11 +270,14 @@ function CreateProjetoDialog({
             <SelectContent>
               <SelectItem value="programa_social">Programa Social (doações mensais)</SelectItem>
               <SelectItem value="projeto_sazonal">Projeto Sazonal (orçamento fixo)</SelectItem>
+              <SelectItem value="caixa_administrativo">Caixa Administrativo (livro caixa)</SelectItem>
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">
             {form.tipo === "programa_social"
               ? "Recebe doações recorrentes para mantimento contínuo."
+              : form.tipo === "caixa_administrativo"
+              ? "Livro caixa para registo de entradas e saídas; orçamento opcional como saldo inicial."
               : "Orçamento fixo com prazo de início e fim; despesas subtraem do total."}
           </p>
         </div>
