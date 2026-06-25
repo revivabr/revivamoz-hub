@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Plus, Upload } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,10 @@ async function uploadComprovante(projetoId: string, file: File): Promise<string>
 }
 
 export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, onSaved }: Props) {
+  const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [catOpen, setCatOpen] = useState(false);
+  const [catNome, setCatNome] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState(initialForm);
 
@@ -124,6 +127,14 @@ export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, on
                   {catsFiltradas.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
                   ))}
+                  {catsFiltradas.length > 0 && <div className="my-1 h-px bg-border" />}
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); setCatOpen(true); }}
+                    className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-primary hover:bg-accent"
+                  >
+                    <Plus className="h-3 w-3" /> Criar categoria
+                  </button>
                 </SelectContent>
               </Select>
             </div>
@@ -157,6 +168,42 @@ export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, on
           </DialogFooter>
         </form>
       </DialogContent>
+
+      <Dialog open={catOpen} onOpenChange={(v) => { setCatOpen(v); if (!v) setCatNome(""); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Criar categoria ({form.tipo})</DialogTitle>
+          </DialogHeader>
+          <form
+            className="space-y-3"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const nome = catNome.trim();
+              if (!nome) return;
+              const { data, error } = await supabase
+                .from("categorias")
+                .insert({ projeto_id: projetoId, tipo: form.tipo, nome })
+                .select("id")
+                .single();
+              if (error) { toast.error(error.message); return; }
+              await qc.invalidateQueries({ queryKey: ["categorias", projetoId] });
+              setForm((f) => ({ ...f, categoria_id: data.id }));
+              setCatNome("");
+              setCatOpen(false);
+              toast.success("Categoria criada.");
+            }}
+          >
+            <div className="space-y-1">
+              <Label>Nome</Label>
+              <Input autoFocus value={catNome} onChange={(e) => setCatNome(e.target.value)} required />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="ghost" onClick={() => setCatOpen(false)}>Cancelar</Button>
+              <Button type="submit">Criar</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
