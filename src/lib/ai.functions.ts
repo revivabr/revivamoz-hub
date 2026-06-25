@@ -18,15 +18,37 @@ const ChatInput = z.object({
 
 type Provedor = z.infer<typeof ProvedorEnum>;
 
-function endpointFor(p: Provedor, baseUrl: string | null): string {
-  if (baseUrl) return baseUrl.replace(/\/$/, "") + "/chat/completions";
+// Modelos Opencode-Go que usam o endpoint Anthropic-compatible (/v1/messages)
+const OPENCODE_ANTHROPIC_MODELS = new Set([
+  "minimax-m3",
+  "minimax-m2.7",
+  "minimax-m2.5",
+  "qwen3.7-max",
+  "qwen3.7-plus",
+  "qwen3.6-plus",
+]);
+
+function endpointFor(p: Provedor, model: string, baseUrl: string | null): {
+  url: string;
+  flavor: "openai" | "anthropic";
+} {
+  if (p === "opencode_go" && OPENCODE_ANTHROPIC_MODELS.has(model)) {
+    return {
+      url: (baseUrl?.replace(/\/$/, "") ?? "https://opencode.ai/zen/go/v1") + "/messages",
+      flavor: "anthropic",
+    };
+  }
+  if (baseUrl) return { url: baseUrl.replace(/\/$/, "") + "/chat/completions", flavor: "openai" };
   switch (p) {
     case "openai":
-      return "https://api.openai.com/v1/chat/completions";
+      return { url: "https://api.openai.com/v1/chat/completions", flavor: "openai" };
     case "gemini":
-      return "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+      return {
+        url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+        flavor: "openai",
+      };
     case "opencode_go":
-      return "https://opencode.ai/zen/go/v1/chat/completions";
+      return { url: "https://opencode.ai/zen/go/v1/chat/completions", flavor: "openai" };
   }
 }
 
@@ -48,19 +70,36 @@ export const aiChat = createServerFn({ method: "POST" })
       );
     }
 
-    const url = endpointFor(data.provedor, cfg.base_url);
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${cfg.api_key}`,
-      },
-      body: JSON.stringify({
+    const { url, flavor } = endpointFor(data.provedor, data.model, cfg.base_url);
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cfg.api_key}`,
+    };
+
+    let body: string;
+    if (flavor === "anthropic") {
+      const system = data.messages.filter((m) => m.role === "system").map((m) => m.content).join("\n\n");
+      const msgs = data.messages
+        .filter((m) => m.role !== "system")
+        .map((m) => ({ role: m.role, content: m.content }));
+      headers["anthropic-version"] = "2023-06-01";
+      body = JSON.stringify({
+        model: data.model,
+        max_tokens: 4096,
+        temperature: data.temperature ?? 0.3,
+        system: system || undefined,
+        messages: msgs,
+      });
+    } else {
+      body = JSON.stringify({
         model: data.model,
         messages: data.messages,
         temperature: data.temperature ?? 0.3,
-      }),
-    });
+      });
+    }
+
+    const res = await fetch(url, { method: "POST", headers, body });
 
     if (!res.ok) {
       const txt = await res.text();
@@ -68,8 +107,11 @@ export const aiChat = createServerFn({ method: "POST" })
     }
     const json = await res.json() as {
       choices?: Array<{ message?: { content?: string } }>;
+      content?: Array<{ text?: string }>;
     };
-    const content = json.choices?.[0]?.message?.content ?? "";
+    const content = flavor === "anthropic"
+      ? (json.content?.map((c) => c.text ?? "").join("") ?? "")
+      : (json.choices?.[0]?.message?.content ?? "");
     return { content };
   });
 
