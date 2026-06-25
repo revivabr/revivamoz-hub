@@ -388,6 +388,19 @@ function ProjetoDetailDialog({
       </DialogHeader>
 
       <div className="space-y-5">
+        {isGestor ? (
+          <section>
+            <h3 className="mb-2 text-sm font-semibold">Logótipo do projeto</h3>
+            <ProjetoLogoUploader
+              projetoId={projeto.id}
+              nome={projeto.nome}
+              logoPath={projeto.logo_path}
+              onChanged={() => qc.invalidateQueries({ queryKey: ["projetos"] })}
+            />
+          </section>
+        ) : (
+          <ProjetoLogo projetoId={projeto.id} nome={projeto.nome} logoPath={projeto.logo_path} />
+        )}
         <section>
           <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold">
             <Users className="h-4 w-4" /> Membros ({membros.length})
