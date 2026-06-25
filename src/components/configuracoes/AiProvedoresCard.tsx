@@ -11,25 +11,25 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-type Provedor = "openai" | "gemini" | "opencode_go";
+import { MODELOS_POR_PROVEDOR, PROVEDOR_LABEL, type ProvedorTipo as Provedor } from "@/lib/ai-models";
 
 const PROVEDOR_INFO: Record<Provedor, { label: string; defaultModel: string; models: string[]; help: string }> = {
   openai: {
-    label: "OpenAI",
-    defaultModel: "gpt-4o-mini",
-    models: ["gpt-4o", "gpt-4o-mini", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-5.4-mini", "gpt-5.4-nano"],
+    label: PROVEDOR_LABEL.openai,
+    defaultModel: MODELOS_POR_PROVEDOR.openai[1],
+    models: MODELOS_POR_PROVEDOR.openai,
     help: "Chave em platform.openai.com/api-keys.",
   },
   gemini: {
-    label: "Google Gemini",
-    defaultModel: "gemini-2.5-flash",
-    models: ["gemini-3-flash-preview", "gemini-3.1-flash-lite", "gemini-3.5-flash", "gemini-2.5-flash", "gemini-2.5-pro"],
+    label: PROVEDOR_LABEL.gemini,
+    defaultModel: MODELOS_POR_PROVEDOR.gemini[0],
+    models: MODELOS_POR_PROVEDOR.gemini,
     help: "Chave em aistudio.google.com/apikey.",
   },
   opencode_go: {
-    label: "Opencode-Go",
-    defaultModel: "kimi-k2.7-code",
-    models: ["glm-5.2", "glm-5.1", "kimi-k2.7-code", "kimi-k2.6", "deepseek-v4-pro", "deepseek-v4-flash", "mimo-v2.5", "mimo-v2.5-pro"],
+    label: PROVEDOR_LABEL.opencode_go,
+    defaultModel: MODELOS_POR_PROVEDOR.opencode_go[0],
+    models: MODELOS_POR_PROVEDOR.opencode_go,
     help: "Subscrição em opencode.ai/auth.",
   },
 };
