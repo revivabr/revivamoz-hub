@@ -351,18 +351,25 @@ function ProjetoDetailDialog({
     },
   });
 
+  const sendInvite = useServerFn(sendInviteEmail);
   const invitar = useMutation({
     mutationFn: async () => {
+      const email = inviteEmail.trim().toLowerCase();
       const { error } = await supabase.from("projeto_convites").insert({
         projeto_id: projeto.id,
-        email: inviteEmail.trim().toLowerCase(),
+        email,
         papel: invitePapel,
         convidado_por: currentUserId,
       });
       if (error) throw error;
+      try {
+        await sendInvite({ data: { email, projetoNome: projeto.nome, papel: invitePapel } });
+      } catch (e) {
+        toast.warning(`Convite criado, mas falhou envio de e-mail: ${(e as Error).message}`);
+      }
     },
     onSuccess: () => {
-      toast.success("Convite criado.");
+      toast.success("Convite criado e e-mail enviado.");
       setInviteEmail("");
       qc.invalidateQueries({ queryKey: ["convites", projeto.id] });
     },
