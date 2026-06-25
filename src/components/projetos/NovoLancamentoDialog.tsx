@@ -40,7 +40,10 @@ async function uploadComprovante(projetoId: string, file: File): Promise<string>
 }
 
 export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, onSaved }: Props) {
+  const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [catOpen, setCatOpen] = useState(false);
+  const [catNome, setCatNome] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState(initialForm);
 
