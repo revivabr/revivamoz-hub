@@ -127,3 +127,81 @@ function AuditoriaPage() {
     </div>
   );
 }
+
+function BackupsCard() {
+  const fetchRuns = useServerFn(listBackupRuns);
+  const runNow = useServerFn(runBackupNow);
+  const getUrl = useServerFn(getBackupDownloadUrl);
+
+  const { data: runs, refetch, isLoading } = useQuery({
+    queryKey: ["backup-runs"],
+    queryFn: () => fetchRuns({ data: {} }),
+  });
+
+  const trigger = useMutation({
+    mutationFn: () => runNow({ data: {} }),
+    onSuccess: () => { toast.success("Backup executado."); refetch(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const download = async (path: string) => {
+    try {
+      const { url } = await getUrl({ data: { path } });
+      window.open(url, "_blank", "noopener");
+    } catch (e) { toast.error((e as Error).message); }
+  };
+
+  const fmtSize = (n?: number | null) =>
+    !n ? "—" : n > 1_000_000 ? `${(n / 1_000_000).toFixed(2)} MB` : `${(n / 1024).toFixed(1)} KB`;
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
+        <div>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Database className="h-4 w-4" /> Backups automáticos
+          </CardTitle>
+          <CardDescription>
+            Cron diário às 12:00 e 22:00 (Maputo). Snapshot completo guardado em armazenamento privado.
+          </CardDescription>
+        </div>
+        <Button size="sm" onClick={() => trigger.mutate()} disabled={trigger.isPending}>
+          <PlayCircle className="mr-1 h-4 w-4" />
+          {trigger.isPending ? "A executar..." : "Executar agora"}
+        </Button>
+      </CardHeader>
+      <CardContent className="p-0">
+        {isLoading ? (
+          <p className="p-4 text-sm text-muted-foreground">A carregar...</p>
+        ) : !runs || runs.length === 0 ? (
+          <p className="p-4 text-sm text-muted-foreground">
+            Ainda não há backups. O primeiro será criado no próximo horário ou clica em "Executar agora".
+          </p>
+        ) : (
+          <div className="divide-y">
+            {runs.map((r: any) => (
+              <div key={r.id} className="grid items-center gap-2 p-3 text-sm md:grid-cols-[160px_120px_1fr_auto]">
+                <div className="text-xs text-muted-foreground">
+                  {new Date(r.started_at).toLocaleString("pt-PT", { timeZone: "Africa/Maputo" })}
+                </div>
+                <Badge variant={r.status === "success" ? "default" : r.status === "error" ? "destructive" : "secondary"}>
+                  {r.status} · {r.trigger}
+                </Badge>
+                <div className="text-xs text-muted-foreground">
+                  {r.status === "success"
+                    ? <>projetos: {r.projetos_count ?? 0} · lançamentos: {r.lancamentos_count ?? 0} · {fmtSize(r.size_bytes)}</>
+                    : r.error ?? "—"}
+                </div>
+                {r.file_path && (
+                  <Button size="sm" variant="outline" onClick={() => download(r.file_path)}>
+                    <Download className="mr-1 h-4 w-4" /> Descarregar
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
