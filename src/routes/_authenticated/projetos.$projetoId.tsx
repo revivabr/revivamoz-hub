@@ -45,6 +45,7 @@ type Projeto = {
   estado: "planeado" | "ativo" | "pausado" | "concluido" | "cancelado";
   orcamento: number; moeda: string;
   data_inicio: string | null; data_fim: string | null;
+  logo_path: string | null;
 };
 type Categoria = { id: string; nome: string; tipo: "entrada" | "saida"; projeto_id: string | null };
 type Etapa = {
