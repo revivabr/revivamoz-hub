@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/")({
 });
 
 type Projeto = {
-  id: string; nome: string; tipo: "programa_social" | "projeto_sazonal";
+  id: string; nome: string; tipo: "programa_social" | "projeto_sazonal" | "caixa_administrativo";
   estado: string; orcamento: number; moeda: string;
 };
 type Lancamento = {
