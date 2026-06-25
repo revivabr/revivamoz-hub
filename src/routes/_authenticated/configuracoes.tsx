@@ -335,4 +335,58 @@ function BrevoTestCard() {
   );
 }
 
+const SEED_ITEMS = [
+  { email: "pepereviva@revivamoz.com",  password: "peprev123", fullName: "Gestor PEPE Reviva",  projetoId: "43b4aae2-aba5-466b-9b18-3edb8be161a2" },
+  { email: "pepenahene@revivamoz.com",  password: "nah123",    fullName: "Gestor PEPE Nahene",  projetoId: "110d84f8-13d2-47e9-8a77-e74134055d56" },
+  { email: "pepeyeshua@revivamoz.com",  password: "yes123",    fullName: "Gestor PEPE Yeshua",  projetoId: "5db36508-3d1f-437e-9150-20162a98be09" },
+  { email: "pepeemunah@revivamoz.com",  password: "emu123",    fullName: "Gestor PEPE Emunah",  projetoId: "17c5f11d-997c-4b1b-bd3b-7ae122fe365a" },
+  { email: "pepehope@revivamoz.com",    password: "hop123",    fullName: "Gestor PEPE Hope",    projetoId: "7ea26993-b6da-415a-8ac0-37bd33cda7ea" },
+  { email: "tbe@revivamoz.com",         password: "tbe123",    fullName: "Gestor TBE",          projetoId: "f3b7cb21-3b5d-4bce-ad5e-e39be65a4c29" },
+  { email: "ginasio@revivamoz.com",     password: "gin123",    fullName: "Gestor Ginásio",      projetoId: "d91ba1f2-ae76-48e2-8700-3e7ceb2fcbf9" },
+  { email: "base@revivamoz.com",        password: "bas123",    fullName: "Gestor Base Missionária", projetoId: "08e1b255-8d37-4325-95a7-af018c50c1a6" },
+  { email: "basculante@revivamoz.com",  password: "bas123",    fullName: "Gestor Caminhão Basculante", projetoId: "b22ea081-a26b-4760-bd27-584d2b172119" },
+  { email: "tanque@revivamoz.com",      password: "tan123",    fullName: "Gestor Caminhão Tanque", projetoId: "7b9f996f-5dc6-4e57-a170-f27e0817f8fe" },
+  { email: "sustenta@revivamoz.com",    password: "sus123",    fullName: "Gestor Sustentabilidade", projetoId: "1713b9d3-a2d1-4c45-8dc9-bacea8544608" },
+  { email: "adm@revivamoz.com",         password: "adm123",    fullName: "Gestor Administração Geral", projetoId: "e4a46d4b-2e7a-4831-9d23-0bb8c6eb4584" },
+  { email: "cen@revivamoz.com",         password: "cen123",    fullName: "Gestor CEN Comunidade", projetoId: "6faf19cb-c65d-46da-ac88-da694369e708" },
+] as const;
+
+function SeedGestoresCard() {
+  const seed = useServerFn(adminSeedGestores);
+  const [results, setResults] = useState<Array<{ email: string; status: string; message?: string }>>([]);
+  const run = useMutation({
+    mutationFn: () => seed({ data: { items: SEED_ITEMS.map((i) => ({ ...i, papel: "gestor" as const })) } }),
+    onSuccess: (r: any) => { setResults(r.results ?? []); toast.success("Seed concluído."); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2"><UserPlus className="h-5 w-5" /> Seed Gestores Iniciais</CardTitle>
+        <CardDescription>
+          Cria os 13 utilizadores gestores predefinidos (um por projeto). Idempotente: contas já existentes são apenas associadas ao projeto.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <Button onClick={() => run.mutate()} disabled={run.isPending}>
+          {run.isPending ? "A executar..." : "Executar seed"}
+        </Button>
+        {results.length > 0 && (
+          <ul className="divide-y rounded-md border text-sm">
+            {results.map((r) => (
+              <li key={r.email} className="flex items-center justify-between px-3 py-2">
+                <span className="font-mono text-xs">{r.email}</span>
+                <Badge variant={r.status === "error" ? "destructive" : r.status === "created" ? "default" : "secondary"}>
+                  {r.status}{r.message ? ` · ${r.message}` : ""}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+
 
