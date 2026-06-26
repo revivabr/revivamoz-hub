@@ -604,6 +604,7 @@ export type Database = {
     }
     Functions: {
       accept_projeto_convite: { Args: { _convite_id: string }; Returns: string }
+      cleanup_assistente_conversas: { Args: never; Returns: undefined }
       get_relatorio_publico: { Args: { _token: string }; Returns: Json }
       grant_super_admin_by_email: { Args: { _email: string }; Returns: string }
       has_role: {
