@@ -265,6 +265,7 @@ export type Database = {
           descricao: string | null
           etapa_id: string | null
           id: string
+          is_demo: boolean
           projeto_id: string
           tipo: Database["public"]["Enums"]["lancamento_tipo"]
           updated_at: string
@@ -279,6 +280,7 @@ export type Database = {
           descricao?: string | null
           etapa_id?: string | null
           id?: string
+          is_demo?: boolean
           projeto_id: string
           tipo: Database["public"]["Enums"]["lancamento_tipo"]
           updated_at?: string
@@ -293,6 +295,7 @@ export type Database = {
           descricao?: string | null
           etapa_id?: string | null
           id?: string
+          is_demo?: boolean
           projeto_id?: string
           tipo?: Database["public"]["Enums"]["lancamento_tipo"]
           updated_at?: string
