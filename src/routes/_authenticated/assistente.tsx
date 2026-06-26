@@ -275,11 +275,47 @@ function AssistentePage() {
                         "max-w-[85%] rounded-lg px-3 py-2 text-sm",
                         m.role === "user"
                           ? "bg-primary text-primary-foreground"
-                          : "bg-muted prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-table:my-2"
+                          : "bg-muted text-foreground"
                       )}
                     >
                       {m.role === "assistant" ? (
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            h1: ({ node, ...p }) => <h3 className="mt-2 mb-1 text-base font-semibold" {...p} />,
+                            h2: ({ node, ...p }) => <h3 className="mt-2 mb-1 text-base font-semibold" {...p} />,
+                            h3: ({ node, ...p }) => <h3 className="mt-2 mb-1 text-[15px] font-semibold" {...p} />,
+                            h4: ({ node, ...p }) => <h4 className="mt-2 mb-1 text-sm font-semibold" {...p} />,
+                            p: ({ node, ...p }) => <p className="my-1 leading-relaxed" {...p} />,
+                            ul: ({ node, ...p }) => <ul className="my-1 ml-5 list-disc space-y-0.5" {...p} />,
+                            ol: ({ node, ...p }) => <ol className="my-1 ml-5 list-decimal space-y-0.5" {...p} />,
+                            li: ({ node, ...p }) => <li className="leading-relaxed" {...p} />,
+                            strong: ({ node, ...p }) => <strong className="font-semibold text-foreground" {...p} />,
+                            em: ({ node, ...p }) => <em className="italic" {...p} />,
+                            hr: () => <hr className="my-3 border-border" />,
+                            a: ({ node, ...p }) => <a className="text-primary underline underline-offset-2" target="_blank" rel="noreferrer" {...p} />,
+                            code: ({ node, className, children, ...p }: any) => {
+                              const isBlock = /language-/.test(className ?? "");
+                              return isBlock ? (
+                                <pre className="my-2 overflow-x-auto rounded-md bg-background/60 p-2 text-xs"><code className={className} {...p}>{children}</code></pre>
+                              ) : (
+                                <code className="rounded bg-background/60 px-1 py-0.5 text-[0.85em]" {...p}>{children}</code>
+                              );
+                            },
+                            blockquote: ({ node, ...p }) => <blockquote className="my-2 border-l-2 border-primary/60 pl-3 italic text-muted-foreground" {...p} />,
+                            table: ({ node, ...p }) => (
+                              <div className="my-2 overflow-x-auto rounded-md border border-border">
+                                <table className="w-full border-collapse text-xs" {...p} />
+                              </div>
+                            ),
+                            thead: ({ node, ...p }) => <thead className="bg-background/60" {...p} />,
+                            th: ({ node, ...p }) => <th className="border-b border-border px-2 py-1.5 text-left font-semibold" {...p} />,
+                            td: ({ node, ...p }) => <td className="border-b border-border/50 px-2 py-1.5" {...p} />,
+                            tr: ({ node, ...p }) => <tr className="even:bg-background/30" {...p} />,
+                          }}
+                        >
+                          {m.content}
+                        </ReactMarkdown>
                       ) : (
                         <span className="whitespace-pre-wrap">{m.content}</span>
                       )}
