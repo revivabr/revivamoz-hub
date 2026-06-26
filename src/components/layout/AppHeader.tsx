@@ -20,7 +20,6 @@ import {
 export function AppHeader({ title }: { title: string }) {
   const { theme, toggle } = useTheme();
   const { t, locale, setLocale } = useI18n();
-  const { open: openTour } = useOnboarding();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [profile, setProfile] = useState<{ name: string; email: string; avatar?: string | null }>({
