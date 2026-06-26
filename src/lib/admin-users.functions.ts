@@ -196,11 +196,12 @@ export const adminUpdateUser = createServerFn({ method: "POST" })
 
     await supabaseAdmin.from("profiles").update({ full_name: data.fullName }).eq("id", data.userId);
 
-    // Substitui associações: remove anteriores e cria a nova.
+    // Substitui associações: remove anteriores e cria as novas.
     await supabaseAdmin.from("projeto_membros").delete().eq("user_id", data.userId);
-    const { error: mErr } = await supabaseAdmin
-      .from("projeto_membros")
-      .insert({ user_id: data.userId, projeto_id: data.projetoId, papel: data.papel });
+    const rows = data.projetoIds.map((projeto_id) => ({
+      user_id: data.userId, projeto_id, papel: data.papel,
+    }));
+    const { error: mErr } = await supabaseAdmin.from("projeto_membros").insert(rows);
     if (mErr) throw new Error(mErr.message);
     return { ok: true };
   });
