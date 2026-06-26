@@ -89,9 +89,18 @@ function renderInline(ctx: Ctx, tokens: Tokens.Generic[], baseStyle: "normal" | 
   ctx.y += LINE_H;
 }
 
+function stripInlineMd(s: string): string {
+  return s
+    .replace(/\*\*\*(.+?)\*\*\*/g, "$1")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "$1")
+    .replace(/__(.+?)__/g, "$1")
+    .replace(/`([^`]+)`/g, "$1");
+}
+
 function renderTable(ctx: Ctx, tok: Tokens.Table) {
-  const head = [tok.header.map((c) => c.text)];
-  const body = tok.rows.map((row) => row.map((c) => c.text));
+  const head = [tok.header.map((c) => stripInlineMd(c.text))];
+  const body = tok.rows.map((row) => row.map((c) => stripInlineMd(c.text)));
   autoTable(ctx.doc, {
     startY: ctx.y,
     head,

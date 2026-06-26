@@ -48,7 +48,8 @@ export async function drawReportHeader(doc: jsPDF, opts: PdfHeaderOptions): Prom
   const pageW = doc.internal.pageSize.getWidth();
   const marginX = 14;
   const headerH = 32;
-  const logoMax = 26;
+  const projetoMax = 26;
+  const revivaMax = 16;
 
   const [reviva, projeto] = await Promise.all([
     loadRevivaLogo(),
@@ -59,26 +60,26 @@ export async function drawReportHeader(doc: jsPDF, opts: PdfHeaderOptions): Prom
   doc.setFillColor(245, 247, 244);
   doc.rect(0, 0, pageW, headerH + 6, "F");
 
-  // Project logo (left)
-  if (projeto) {
-    try {
-      const props = doc.getImageProperties(projeto);
-      const ratio = props.width / props.height;
-      let w = logoMax * ratio;
-      let h = logoMax;
-      if (w > logoMax * 1.8) { w = logoMax * 1.8; h = w / ratio; }
-      doc.addImage(projeto, "PNG", marginX, (headerH - h) / 2 + 3, w, h);
-    } catch { /* ignore */ }
-  }
-
-  // Reviva logo (right)
+  // Reviva logo (left, smaller)
   if (reviva) {
     try {
       const props = doc.getImageProperties(reviva);
       const ratio = props.width / props.height;
-      const h = logoMax;
+      const h = revivaMax;
       const w = h * ratio;
-      doc.addImage(reviva, "PNG", pageW - marginX - w, (headerH - h) / 2 + 3, w, h);
+      doc.addImage(reviva, "PNG", marginX, (headerH - h) / 2 + 3, w, h);
+    } catch { /* ignore */ }
+  }
+
+  // Project logo (right)
+  if (projeto) {
+    try {
+      const props = doc.getImageProperties(projeto);
+      const ratio = props.width / props.height;
+      let w = projetoMax * ratio;
+      let h = projetoMax;
+      if (w > projetoMax * 1.8) { w = projetoMax * 1.8; h = w / ratio; }
+      doc.addImage(projeto, "PNG", pageW - marginX - w, (headerH - h) / 2 + 3, w, h);
     } catch { /* ignore */ }
   }
 
