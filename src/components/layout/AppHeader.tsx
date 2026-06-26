@@ -108,15 +108,6 @@ export function AppHeader({ title }: { title: string }) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <button
-          type="button"
-          onClick={openTour}
-          className="hidden h-9 w-9 place-items-center rounded-lg border border-border bg-background text-muted-foreground transition hover:text-foreground sm:grid"
-          aria-label={t("header.help")}
-          title={t("header.help")}
-        >
-          <HelpCircle className="h-4 w-4" />
-        </button>
 
         <button
           type="button"
