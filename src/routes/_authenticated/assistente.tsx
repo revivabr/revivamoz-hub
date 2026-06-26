@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { assistenteAsk, listConversas, getConversa, deleteConversa } from "@/lib/ai.functions";
 import { PROVEDOR_LABEL, type ProvedorTipo } from "@/lib/ai-models";
 import { drawReportHeader } from "@/lib/pdf-header";
+import { renderMarkdownToPdf } from "@/lib/pdf-markdown";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
