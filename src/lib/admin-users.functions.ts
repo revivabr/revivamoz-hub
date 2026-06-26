@@ -6,7 +6,7 @@ const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   fullName: z.string().trim().min(1),
-  projetoId: z.string().uuid(),
+  projetoIds: z.array(z.string().uuid()).min(1),
   papel: z.enum(["gestor", "financiador", "leitor"]).default("leitor"),
 });
 
@@ -28,7 +28,7 @@ const resetPasswordSchema = z.object({
 const updateUserSchema = z.object({
   userId: z.string().uuid(),
   fullName: z.string().trim().min(1),
-  projetoId: z.string().uuid(),
+  projetoIds: z.array(z.string().uuid()).min(1),
   papel: z.enum(["gestor", "financiador", "leitor"]),
 });
 
