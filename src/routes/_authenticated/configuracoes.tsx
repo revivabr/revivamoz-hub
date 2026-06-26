@@ -589,7 +589,7 @@ function UsersListCard() {
               className="space-y-3"
               onSubmit={(e) => {
                 e.preventDefault();
-                if (!editForm.projetoId) { toast.error("Seleccione um projeto."); return; }
+                if (editForm.projetoIds.length === 0) { toast.error("Seleccione pelo menos um projeto."); return; }
                 update.mutate({ userId: editing.id, ...editForm });
               }}
             >
@@ -603,14 +603,28 @@ function UsersListCard() {
                   onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <Label>Projeto</Label>
-                <select required
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
-                  value={editForm.projetoId}
-                  onChange={(e) => setEditForm({ ...editForm, projetoId: e.target.value })}>
-                  <option value="">— Seleccionar —</option>
-                  {projetos.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
-                </select>
+                <Label>Projetos ({editForm.projetoIds.length} seleccionado{editForm.projetoIds.length === 1 ? "" : "s"})</Label>
+                <div className="flex max-h-48 flex-wrap gap-2 overflow-auto rounded-md border border-input bg-background p-2">
+                  {projetos.map((p) => {
+                    const active = editForm.projetoIds.includes(p.id);
+                    return (
+                      <button
+                        type="button"
+                        key={p.id}
+                        onClick={() => toggleEditProjeto(p.id)}
+                        className={
+                          "rounded-full border px-3 py-1 text-xs transition " +
+                          (active
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-input bg-background hover:bg-muted")
+                        }
+                      >
+                        {active ? "✓ " : "+ "}{p.nome}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-muted-foreground">Clique para adicionar ou remover vínculos.</p>
               </div>
               <div className="space-y-1">
                 <Label>Papel</Label>
