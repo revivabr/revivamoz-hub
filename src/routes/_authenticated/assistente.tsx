@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { assistenteAsk, listConversas, getConversa, deleteConversa } from "@/lib/ai.functions";
 import { PROVEDOR_LABEL, type ProvedorTipo } from "@/lib/ai-models";
 import { drawReportHeader } from "@/lib/pdf-header";
+import { renderMarkdownToPdf } from "@/lib/pdf-markdown";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -136,25 +137,69 @@ function AssistentePage() {
       subtitleLines: [new Date().toLocaleString("pt-PT")],
     });
     const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
     const marginX = 14;
-    const maxW = pageW - marginX * 2;
+    const contentW = pageW - marginX * 2;
     let y = startY;
-    doc.setFontSize(10);
+
     for (const m of messages) {
-      const label = m.role === "user" ? "Você" : "Aida (IA)";
+      const isUser = m.role === "user";
+      const label = isUser ? "Você" : "Aida · Assistente IA";
+
+      if (y > pageH - 30) { doc.addPage(); y = 20; }
+
+      // Role chip
       doc.setFont("helvetica", "bold");
-      doc.setTextColor(m.role === "user" ? 20 : 50, m.role === "user" ? 83 : 50, m.role === "user" ? 45 : 50);
-      if (y > 270) { doc.addPage(); y = 20; }
-      doc.text(label, marginX, y); y += 5;
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(30);
-      const lines = doc.splitTextToSize(m.content, maxW);
-      for (const ln of lines) {
-        if (y > 285) { doc.addPage(); y = 20; }
-        doc.text(ln, marginX, y); y += 5;
+      doc.setFontSize(9);
+      const labelW = doc.getTextWidth(label) + 6;
+      if (isUser) {
+        doc.setFillColor(20, 83, 45);
+        doc.roundedRect(pageW - marginX - labelW, y - 4, labelW, 6, 1.5, 1.5, "F");
+        doc.setTextColor(255);
+        doc.text(label, pageW - marginX - 3, y, { align: "right" });
+      } else {
+        doc.setFillColor(232, 240, 234);
+        doc.roundedRect(marginX, y - 4, labelW, 6, 1.5, 1.5, "F");
+        doc.setTextColor(20, 83, 45);
+        doc.text(label, marginX + 3, y);
       }
-      y += 3;
+      y += 5;
+
+      // Bubble background
+      const bubbleX = isUser ? marginX + 20 : marginX;
+      const bubbleMaxW = contentW - 20;
+      const bubbleStartY = y;
+
+      // Pre-measure by rendering on a virtual pass? Simpler: render then draw bg behind via clip.
+      // Strategy: render content, then draw a light separator line under it.
+      const endY = renderMarkdownToPdf(doc, m.content, {
+        x: bubbleX + 3,
+        y: y + 2,
+        maxW: bubbleMaxW - 6,
+        bottomMargin: 15,
+      });
+
+      // Subtle bubble outline if it stayed on the same page
+      if (endY > bubbleStartY && endY < pageH - 10) {
+        doc.setDrawColor(isUser ? 20 : 220, isUser ? 83 : 220, isUser ? 45 : 220);
+        doc.setLineWidth(0.2);
+        doc.setFillColor(isUser ? 240 : 250, isUser ? 247 : 250, isUser ? 242 : 250);
+        // Draw under-line only to avoid covering text
+        doc.line(bubbleX, endY + 1, bubbleX + bubbleMaxW, endY + 1);
+      }
+      y = endY + 6;
     }
+
+    // Footer page numbers
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) {
+      doc.setPage(i);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(140);
+      doc.text(`${i} / ${pages}`, pageW / 2, pageH - 6, { align: "center" });
+    }
+
     doc.save(`conversa-aida-${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
