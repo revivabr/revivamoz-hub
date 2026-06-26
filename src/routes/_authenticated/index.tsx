@@ -18,6 +18,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { formatMZN } from "@/lib/format";
+import {
+  chartColors, categoricalPalette, tooltipContentStyle, tooltipLabelStyle,
+  tooltipItemStyle, axisTickStyle, gridStroke, legendStyle,
+} from "@/lib/chart-theme";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 
