@@ -79,6 +79,14 @@ const dictionaries: Record<Locale, Dict> = {
     "empty.settings.title": "Configurações em breve",
     "empty.settings.desc": "Aqui irá gerir utilizadores, projectos, papéis e preferências da organização. Estamos a preparar tudo.",
     "empty.action.help": "Ver tour guiado",
+
+    "auth.heading": "Acede à tua Área de Gestão:",
+    "auth.email": "Email",
+    "auth.password": "Palavra-passe",
+    "auth.signin": "Entrar",
+    "auth.signing_in": "A entrar…",
+    "auth.hint": "As credenciais são emitidas pelo Super Administrador. Se precisa de acesso, contacte-o.",
+    "auth.theme_toggle": "Alternar tema",
   },
   "pt-BR": {
     "nav.section": "Navegação",
@@ -154,6 +162,14 @@ const dictionaries: Record<Locale, Dict> = {
     "empty.settings.title": "Configurações em breve",
     "empty.settings.desc": "Aqui você irá gerenciar usuários, projetos, papéis e preferências da organização. Estamos preparando tudo.",
     "empty.action.help": "Ver tour guiado",
+
+    "auth.heading": "Acesse sua Área de Gestão:",
+    "auth.email": "E-mail",
+    "auth.password": "Senha",
+    "auth.signin": "Entrar",
+    "auth.signing_in": "Entrando…",
+    "auth.hint": "As credenciais são emitidas pelo Super Administrador. Se precisa de acesso, entre em contato.",
+    "auth.theme_toggle": "Alternar tema",
   },
 };
 

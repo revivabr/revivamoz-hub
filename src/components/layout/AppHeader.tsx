@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Search, Moon, Sun, Languages, HelpCircle, LogOut } from "lucide-react";
+import { Search, Moon, Sun, Languages, LogOut } from "lucide-react";
 import { NotificationsBell } from "@/components/notifications/NotificationsBell";
 import { OfflineBadge } from "@/components/layout/OfflineBadge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/lib/theme";
 import { useI18n } from "@/lib/i18n";
-import { useOnboarding } from "@/components/onboarding/OnboardingTour";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -21,7 +20,6 @@ import {
 export function AppHeader({ title }: { title: string }) {
   const { theme, toggle } = useTheme();
   const { t, locale, setLocale } = useI18n();
-  const { open: openTour } = useOnboarding();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [profile, setProfile] = useState<{ name: string; email: string; avatar?: string | null }>({
@@ -110,15 +108,6 @@ export function AppHeader({ title }: { title: string }) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <button
-          type="button"
-          onClick={openTour}
-          className="hidden h-9 w-9 place-items-center rounded-lg border border-border bg-background text-muted-foreground transition hover:text-foreground sm:grid"
-          aria-label={t("header.help")}
-          title={t("header.help")}
-        >
-          <HelpCircle className="h-4 w-4" />
-        </button>
 
         <button
           type="button"

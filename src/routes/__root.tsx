@@ -15,7 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "../lib/theme";
 import { I18nProvider } from "../lib/i18n";
 import { TooltipProvider } from "../components/ui/tooltip";
-import { OnboardingProvider } from "../components/onboarding/OnboardingTour";
+
 import { supabase } from "../integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -159,11 +159,9 @@ function RootComponent() {
       <ThemeProvider>
         <I18nProvider>
           <TooltipProvider delayDuration={200}>
-            <OnboardingProvider>
-              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-              <Outlet />
-              <Toaster richColors position="top-right" />
-            </OnboardingProvider>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+            <Toaster richColors position="top-right" />
           </TooltipProvider>
         </I18nProvider>
       </ThemeProvider>
