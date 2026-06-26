@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { drawReportHeader } from "@/lib/pdf-header";
 import { formatMZN, formatDate, formatDateTime } from "@/lib/format";
 
 export const Route = createFileRoute("/p/relatorio/$token")({
