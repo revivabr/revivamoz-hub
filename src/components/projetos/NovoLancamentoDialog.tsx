@@ -21,7 +21,10 @@ interface Props {
   etapas: Etapa[];
   userId: string;
   onSaved: () => void;
+  triggerSize?: "default" | "sm" | "lg";
+  triggerFullWidth?: boolean;
 }
+
 
 const initialForm = () => ({
   tipo: "saida" as "entrada" | "saida",
@@ -39,7 +42,7 @@ async function uploadComprovante(projetoId: string, file: File): Promise<string>
   return path;
 }
 
-export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, onSaved }: Props) {
+export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, onSaved, triggerSize = "default", triggerFullWidth = false }: Props) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [catOpen, setCatOpen] = useState(false);
@@ -87,8 +90,14 @@ export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, on
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button><Plus className="mr-2 h-4 w-4" />Novo lançamento</Button>
+        <Button
+          size={triggerSize}
+          className={`${triggerFullWidth ? "w-full " : ""}shadow-md hover:shadow-lg transition-shadow ${triggerSize === "lg" ? "text-base font-semibold" : ""}`}
+        >
+          <Plus className={triggerSize === "lg" ? "mr-2 h-5 w-5" : "mr-2 h-4 w-4"} />Novo lançamento
+        </Button>
       </DialogTrigger>
+
       <DialogContent>
         <DialogHeader><DialogTitle>Novo lançamento</DialogTitle></DialogHeader>
         <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); mutate.mutate(); }}>
