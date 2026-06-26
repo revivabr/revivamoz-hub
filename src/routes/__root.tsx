@@ -159,11 +159,9 @@ function RootComponent() {
       <ThemeProvider>
         <I18nProvider>
           <TooltipProvider delayDuration={200}>
-            <OnboardingProvider>
-              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-              <Outlet />
-              <Toaster richColors position="top-right" />
-            </OnboardingProvider>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+            <Toaster richColors position="top-right" />
           </TooltipProvider>
         </I18nProvider>
       </ThemeProvider>
