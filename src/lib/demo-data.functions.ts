@@ -73,7 +73,7 @@ export const seedDemoData = createServerFn({ method: "POST" })
     let inserted = 0;
     for (let i = 0; i < rows.length; i += 500) {
       const chunk = rows.slice(i, i + 500);
-      const { error } = await supabaseAdmin.from("lancamentos").insert(chunk);
+      const { error } = await supabaseAdmin.from("lancamentos").insert(chunk as any);
       if (error) throw new Error(error.message);
       inserted += chunk.length;
     }
