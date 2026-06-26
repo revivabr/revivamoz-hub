@@ -125,6 +125,7 @@ function AuthPage() {
             <p className="text-center text-xs text-muted-foreground">
               As credenciais são emitidas pelo Super Administrador. Se precisa de acesso, contacte-o.
             </p>
+            </div>
           </div>
         </div>
       </div>
