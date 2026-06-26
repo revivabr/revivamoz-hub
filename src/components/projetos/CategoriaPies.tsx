@@ -1,15 +1,13 @@
 import { useMemo } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  categoricalPalette as COLORS,
+  tooltipContentStyle, tooltipItemStyle, tooltipLabelStyle, legendStyle,
+} from "@/lib/chart-theme";
 
 type Lancamento = { tipo: "entrada" | "saida"; valor: number; categoria_id: string | null };
 type Categoria = { id: string; nome: string };
-
-const COLORS = [
-  "hsl(var(--primary))",
-  "#10b981", "#f59e0b", "#ef4444", "#6366f1", "#ec4899",
-  "#14b8a6", "#f97316", "#8b5cf6", "#06b6d4", "#84cc16", "#eab308",
-];
 
 function aggregate(lancs: Lancamento[], cats: Categoria[], tipo: "entrada" | "saida") {
   const map = new Map<string, number>();
