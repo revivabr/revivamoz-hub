@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PiggyBank, TrendingUp, TrendingDown, FolderKanban, Filter, Activity } from "lucide-react";
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer,
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer,
   Tooltip, XAxis, YAxis,
 } from "recharts";
 
