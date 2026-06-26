@@ -17,6 +17,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { drawReportHeader } from "@/lib/pdf-header";
 import { formatMZN, formatDate } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/relatorios")({
   component: ReportsPage,
 });
 
-type Projeto = { id: string; nome: string; moeda: string; orcamento: number };
+type Projeto = { id: string; nome: string; moeda: string; orcamento: number; logo_path: string | null };
 type Lanc = {
   id: string; data: string; tipo: "entrada" | "saida"; valor: number;
   descricao: string | null; categoria_id: string | null;
@@ -53,7 +54,7 @@ function ReportsPage() {
     queryKey: ["rel-projetos"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("projetos").select("id,nome,moeda,orcamento").order("nome");
+        .from("projetos").select("id,nome,moeda,orcamento,logo_path").order("nome");
       if (error) throw error;
       if (data?.length && !projetoId) setProjetoId(data[0].id);
       return data as Projeto[];
@@ -98,20 +99,30 @@ function ReportsPage() {
     return { entradas, saidas, saldo: entradas - saidas };
   }, [lancamentos]);
 
-  function exportPDF() {
+  async function exportPDF() {
     if (!projeto) return;
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.setTextColor(20, 83, 45);
-    doc.text("Reviva Moz · Relatório Financeiro", 14, 18);
-    doc.setFontSize(11);
-    doc.setTextColor(60);
-    doc.text(`Projeto: ${projeto.nome}`, 14, 28);
-    doc.text(`Período: ${formatDate(from)} a ${formatDate(to)}`, 14, 34);
-    doc.text(`Entradas: ${formatMZN(kpis.entradas)}   Saídas: ${formatMZN(kpis.saidas)}   Saldo: ${formatMZN(kpis.saldo)}`, 14, 40);
+    const startY = await drawReportHeader(doc, {
+      title: "Relatório Financeiro",
+      subtitleLines: [
+        projeto.nome,
+        `Período: ${formatDate(from)} a ${formatDate(to)}`,
+      ],
+      projetoLogoPath: projeto.logo_path,
+    });
+
+    // KPI strip
+    doc.setFontSize(10);
+    doc.setTextColor(40);
+    doc.text(
+      `Entradas: ${formatMZN(kpis.entradas)}    Saídas: ${formatMZN(kpis.saidas)}    Saldo: ${formatMZN(kpis.saldo)}`,
+      doc.internal.pageSize.getWidth() / 2,
+      startY,
+      { align: "center" },
+    );
 
     autoTable(doc, {
-      startY: 48,
+      startY: startY + 6,
       head: [["Data", "Tipo", "Categoria", "Descrição", "Valor (MZN)"]],
       body: lancamentos.map((l) => [
         formatDate(l.data),
@@ -120,8 +131,10 @@ function ReportsPage() {
         l.descricao ?? "",
         Number(l.valor).toLocaleString("pt-PT", { minimumFractionDigits: 2 }),
       ]),
-      headStyles: { fillColor: [20, 83, 45] },
-      styles: { fontSize: 9 },
+      headStyles: { fillColor: [20, 83, 45], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 247, 244] },
+      styles: { fontSize: 9, cellPadding: 2.5 },
+      margin: { left: 14, right: 14 },
     });
 
     doc.save(`relatorio-${projeto.nome}-${from}-${to}.pdf`);
