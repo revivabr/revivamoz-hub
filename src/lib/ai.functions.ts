@@ -108,18 +108,11 @@ export const testAiProviderEndpoints = createServerFn({ method: "POST" })
   });
 
 // Assistente: agrega contexto financeiro e usa o provedor ativo configurado pelo Super Admin.
-const AskInput = z.object({
-  history: z.array(z.object({
-    role: z.enum(["user", "assistant"]),
-    content: z.string(),
-  })),
-  question: z.string().min(1),
-});
-
 type ProjetoRow = { id: string; nome: string; tipo: string; orcamento: number | null; estado: string | null };
-type LancRow = { projeto_id: string; data: string; tipo: string; valor: number; descricao: string | null };
+type LancRow = { projeto_id: string; data: string; tipo: string; valor: number; descricao: string | null; categoria_id?: string | null };
 
 async function fetchFinancialContext(sb: any) {
+  // Cliente RLS-scoped: só vê projetos/lançamentos do utilizador (ou todos se super_admin).
   const { data: projetos } = await sb
     .from("projetos")
     .select("id, nome, tipo, orcamento, estado")
@@ -130,10 +123,10 @@ async function fetchFinancialContext(sb: any) {
 
   const { data: lx } = await sb
     .from("lancamentos")
-    .select("projeto_id, data, tipo, valor, descricao")
+    .select("projeto_id, data, tipo, valor, descricao, categoria_id")
     .in("projeto_id", ids)
     .order("data", { ascending: false })
-    .limit(200);
+    .limit(300);
 
   return {
     projetos: (projetos ?? []) as ProjetoRow[],
@@ -146,20 +139,52 @@ function summarizeProjects(projetos: ProjetoRow[], lancamentos: LancRow[]) {
     const lx = lancamentos.filter((l) => l.projeto_id === p.id);
     const entradas = lx.filter((l) => l.tipo === "entrada").reduce((a, l) => a + Number(l.valor), 0);
     const saidas = lx.filter((l) => l.tipo === "saida").reduce((a, l) => a + Number(l.valor), 0);
-    return { nome: p.nome, tipo: p.tipo, orcamento: p.orcamento, entradas, saidas, saldo: entradas - saidas };
+    return {
+      nome: p.nome,
+      tipo: p.tipo,
+      estado: p.estado,
+      orcamento: p.orcamento,
+      entradas,
+      saidas,
+      saldo: entradas - saidas,
+      execucao_pct: p.orcamento ? Number(((saidas / Number(p.orcamento)) * 100).toFixed(1)) : null,
+    };
   });
 }
 
 function buildSystemPrompt(resumo: unknown, lancamentos: LancRow[]) {
-  return `És o Assistente financeiro da Reviva Moz. Responde sempre em português de Moçambique, conciso e claro.
-Usa exclusivamente os dados abaixo (em MZN) para responder. Se a resposta não estiver nos dados, diz que não tens essa informação.
+  const hoje = new Date().toISOString().slice(0, 10);
+  return `És a "Aida" — Assistente Inteligente de Dados da Reviva Moz (ONG em Moçambique).
 
-PROJETOS (resumo agregado):
+PERSONALIDADE
+- Calorosa, profissional e respeitosa. Trata o utilizador por "você".
+- Responde sempre em português de Moçambique, com tom humano e claro.
+- Usa emojis com moderação (📊 💰 ⚠️ ✅) apenas quando ajudam a leitura.
+- Estrutura respostas com **negrito**, listas e tabelas markdown quando útil.
+- Termina análises com 1 sugestão prática (ex.: "Quer que eu detalhe por categoria?").
+
+REGRAS
+- Hoje é ${hoje}. Valores em Meticais (MZN), formato 1.234,56 MZN.
+- Usa EXCLUSIVAMENTE os dados abaixo. Se faltar info, diz "Não tenho esses dados no contexto atual" — nunca inventes números.
+- Os dados já estão filtrados aos projetos a que este utilizador tem acesso (RLS).
+- Para "que saída cortar?": analisa maiores saídas, identifica padrões (descrições/categorias repetidas) e propõe 2-3 candidatos com justificativa (valor + frequência + impacto).
+- Para previsões: usa média mensal das transações e declara explicitamente que é estimativa.
+
+CONTEXTO — PROJETOS (resumo agregado em MZN):
 ${JSON.stringify(resumo, null, 2)}
 
-ÚLTIMAS TRANSAÇÕES (até 200, mais recentes):
-${JSON.stringify(lancamentos.slice(0, 100), null, 2)}`;
+CONTEXTO — TRANSAÇÕES (até 200 mais recentes):
+${JSON.stringify(lancamentos.slice(0, 200), null, 2)}`;
 }
+
+const AskInput = z.object({
+  history: z.array(z.object({
+    role: z.enum(["user", "assistant"]),
+    content: z.string(),
+  })),
+  question: z.string().min(1),
+  conversaId: z.string().uuid().optional().nullable(),
+});
 
 export const assistenteAsk = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -186,5 +211,80 @@ export const assistenteAsk = createServerFn({ method: "POST" })
       apiKey: ativo.api_key,
       baseUrl: ativo.base_url,
     });
-    return { content, provedor: ativo.provedor, model: ativo.default_model };
+
+    // Persiste a conversa (cria ou actualiza)
+    const sb = context.supabase;
+    const novas = [
+      ...data.history,
+      { role: "user" as const, content: data.question },
+      { role: "assistant" as const, content },
+    ];
+    let conversaId = data.conversaId ?? null;
+    try {
+      if (conversaId) {
+        await sb.from("assistente_conversas")
+          .update({ mensagens: novas, updated_at: new Date().toISOString() })
+          .eq("id", conversaId)
+          .eq("user_id", context.userId);
+      } else {
+        const titulo = data.question.slice(0, 80);
+        const { data: ins } = await sb.from("assistente_conversas")
+          .insert({ user_id: context.userId, titulo, mensagens: novas })
+          .select("id")
+          .single();
+        conversaId = ins?.id ?? null;
+      }
+    } catch (e) {
+      console.error("[assistente] persistência falhou", e);
+    }
+
+    return { content, provedor: ativo.provedor, model: ativo.default_model, conversaId };
   });
+
+// Histórico (últimos 7 dias) do utilizador, com auto-limpeza best-effort.
+export const listConversas = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    await context.supabase
+      .from("assistente_conversas")
+      .delete()
+      .lt("updated_at", since)
+      .eq("user_id", context.userId);
+    const { data, error } = await context.supabase
+      .from("assistente_conversas")
+      .select("id, titulo, updated_at")
+      .eq("user_id", context.userId)
+      .order("updated_at", { ascending: false })
+      .limit(50);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const getConversa = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: row, error } = await context.supabase
+      .from("assistente_conversas")
+      .select("id, titulo, mensagens, updated_at")
+      .eq("id", data.id)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const deleteConversa = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("assistente_conversas")
+      .delete()
+      .eq("id", data.id)
+      .eq("user_id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
