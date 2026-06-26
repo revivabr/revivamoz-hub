@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { assistenteAsk } from "@/lib/ai.functions";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from "recharts";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/inteligencia")({
@@ -219,18 +219,24 @@ function InteligenciaPage() {
                 <div className="h-64">
                   <ResponsiveContainer>
                     <LineChart data={previsao}>
-                      <XAxis dataKey="ym" tick={{ fontSize: 11 }} />
-                      <YAxis tick={{ fontSize: 11 }} tickFormatter={fmt} />
-                      <Tooltip formatter={(v: number) => `${fmt(v)} MZN`} />
-                      <ReferenceLine y={0} stroke="hsl(var(--border))" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                      <XAxis dataKey="ym" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} stroke="var(--border)" />
+                      <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} stroke="var(--border)" tickFormatter={fmt} />
+                      <Tooltip
+                        formatter={(v: number) => `${fmt(v)} MZN`}
+                        contentStyle={{ background: "var(--card)", color: "var(--card-foreground)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+                        labelStyle={{ color: "var(--card-foreground)", fontWeight: 600 }}
+                        itemStyle={{ color: "var(--card-foreground)" }}
+                      />
+                      <ReferenceLine y={0} stroke="var(--border)" />
                       <Line
                         type="monotone"
                         dataKey="valor"
-                        stroke="hsl(var(--primary))"
+                        stroke="var(--primary)"
                         strokeWidth={2}
                         dot={(props) => {
                           const previsto = previsao[props.index!]?.tipo === "previsto";
-                          return <circle key={props.index} cx={props.cx} cy={props.cy} r={4} fill={previsto ? "hsl(var(--muted-foreground))" : "hsl(var(--primary))"} stroke="none" />;
+                          return <circle key={props.index} cx={props.cx} cy={props.cy} r={4} fill={previsto ? "var(--muted-foreground)" : "var(--primary)"} stroke="none" />;
                         }}
                         strokeDasharray={undefined}
                       />

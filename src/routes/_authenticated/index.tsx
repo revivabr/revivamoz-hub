@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PiggyBank, TrendingUp, TrendingDown, FolderKanban, Filter, Activity } from "lucide-react";
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer,
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer,
   Tooltip, XAxis, YAxis,
 } from "recharts";
 
@@ -18,6 +18,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { formatMZN } from "@/lib/format";
+import {
+  chartColors, categoricalPalette, tooltipContentStyle, tooltipLabelStyle,
+  tooltipItemStyle, axisTickStyle, gridStroke, legendStyle,
+} from "@/lib/chart-theme";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -241,25 +245,31 @@ function DashboardPage() {
                 <AreaChart data={evolucao}>
                   <defs>
                     <linearGradient id="gEnt" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
-                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      <stop offset="0%" stopColor={chartColors.primary} stopOpacity={0.55} />
+                      <stop offset="100%" stopColor={chartColors.primary} stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="gSai" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--destructive))" stopOpacity={0.5} />
-                      <stop offset="100%" stopColor="hsl(var(--destructive))" stopOpacity={0} />
+                      <stop offset="0%" stopColor={chartColors.destructive} stopOpacity={0.55} />
+                      <stop offset="100%" stopColor={chartColors.destructive} stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip formatter={(v: number) => fmt(Number(v))} />
-                  <Legend />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                  <XAxis dataKey="mes" tick={axisTickStyle} stroke={gridStroke} />
+                  <YAxis tick={axisTickStyle} stroke={gridStroke} />
+                  <Tooltip
+                    formatter={(v: number) => fmt(Number(v))}
+                    contentStyle={tooltipContentStyle}
+                    labelStyle={tooltipLabelStyle}
+                    itemStyle={tooltipItemStyle}
+                    cursor={{ stroke: chartColors.muted, strokeWidth: 1, strokeDasharray: "3 3" }}
+                  />
+                  <Legend wrapperStyle={legendStyle} />
                   <Area type="monotone" dataKey="entradas" name="Entradas"
-                    stroke="hsl(var(--primary))" fill="url(#gEnt)" isAnimationActive animationDuration={700} />
+                    stroke={chartColors.primary} strokeWidth={2} fill="url(#gEnt)" isAnimationActive animationDuration={700} />
                   <Area type="monotone" dataKey="saidas" name="Saídas"
-                    stroke="hsl(var(--destructive))" fill="url(#gSai)" isAnimationActive animationDuration={700} />
+                    stroke={chartColors.destructive} strokeWidth={2} fill="url(#gSai)" isAnimationActive animationDuration={700} />
                   <Area type="monotone" dataKey="saldo" name="Saldo acumulado"
-                    stroke="hsl(var(--accent-foreground))" fillOpacity={0} isAnimationActive animationDuration={900} />
+                    stroke={categoricalPalette[2]} strokeWidth={2} fillOpacity={0} isAnimationActive animationDuration={900} />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -278,13 +288,19 @@ function DashboardPage() {
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={porProjeto}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="nome" tick={{ fontSize: 11 }} interval={0} angle={-15} textAnchor="end" height={60} />
-                    <YAxis tick={{ fontSize: 11 }} />
-                    <Tooltip formatter={(v: number) => fmt(Number(v))} />
-                    <Legend />
-                    <Bar dataKey="entradas" fill="hsl(var(--primary))" name="Entradas" isAnimationActive animationDuration={700} />
-                    <Bar dataKey="saidas" fill="hsl(var(--destructive))" name="Saídas" isAnimationActive animationDuration={700} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                    <XAxis dataKey="nome" tick={axisTickStyle} stroke={gridStroke} interval={0} angle={-15} textAnchor="end" height={60} />
+                    <YAxis tick={axisTickStyle} stroke={gridStroke} />
+                    <Tooltip
+                      formatter={(v: number) => fmt(Number(v))}
+                      contentStyle={tooltipContentStyle}
+                      labelStyle={tooltipLabelStyle}
+                      itemStyle={tooltipItemStyle}
+                      cursor={{ fill: "var(--muted)", opacity: 0.4 }}
+                    />
+                    <Legend wrapperStyle={legendStyle} />
+                    <Bar dataKey="entradas" fill={chartColors.primary} name="Entradas" radius={[6, 6, 0, 0]} isAnimationActive animationDuration={700} />
+                    <Bar dataKey="saidas" fill={chartColors.destructive} name="Saídas" radius={[6, 6, 0, 0]} isAnimationActive animationDuration={700} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -302,17 +318,28 @@ function DashboardPage() {
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={topSaidas} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis type="number" tick={{ fontSize: 11 }} />
-                    <YAxis dataKey="nome" type="category" tick={{ fontSize: 11 }} width={120} />
-                    <Tooltip formatter={(v: number) => fmt(Number(v))} />
-                    <Bar dataKey="valor" fill="hsl(var(--destructive))" name="Saídas" isAnimationActive animationDuration={700} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} horizontal={false} />
+                    <XAxis type="number" tick={axisTickStyle} stroke={gridStroke} />
+                    <YAxis dataKey="nome" type="category" tick={axisTickStyle} stroke={gridStroke} width={120} />
+                    <Tooltip
+                      formatter={(v: number) => fmt(Number(v))}
+                      contentStyle={tooltipContentStyle}
+                      labelStyle={tooltipLabelStyle}
+                      itemStyle={tooltipItemStyle}
+                      cursor={{ fill: "var(--muted)", opacity: 0.4 }}
+                    />
+                    <Bar dataKey="valor" name="Saídas" radius={[0, 6, 6, 0]} isAnimationActive animationDuration={700}>
+                      {topSaidas.map((_, i) => (
+                        <Cell key={i} fill={categoricalPalette[i % categoricalPalette.length]} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               )}
             </CardContent>
           </Card>
         </div>
+
 
         <Card className="animate-fade-in">
           <CardHeader>
