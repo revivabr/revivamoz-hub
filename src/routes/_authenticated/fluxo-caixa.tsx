@@ -85,18 +85,29 @@ function CashflowPage() {
 
   const projetoNome = projetoId === "all" ? "Todos os projetos" : projetos.find((p) => p.id === projetoId)?.nome ?? "—";
 
-  function exportPDF() {
+  async function exportPDF() {
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.setTextColor(20, 83, 45);
-    doc.text("Reviva Moz · Fluxo de Caixa", 14, 18);
-    doc.setFontSize(11);
-    doc.setTextColor(60);
-    doc.text(`Projeto: ${projetoNome}`, 14, 28);
-    doc.text(`Período: ${formatDate(from)} a ${formatDate(to)}`, 14, 34);
-    doc.text(`Entradas: ${formatMZN(totais.entradas)}   Saídas: ${formatMZN(totais.saidas)}   Saldo: ${formatMZN(totais.saldo)}`, 14, 40);
+    const selected = projetoId === "all" ? null : projetos.find((p) => p.id === projetoId) ?? null;
+    const startY = await drawReportHeader(doc, {
+      title: "Fluxo de Caixa",
+      subtitleLines: [
+        projetoNome,
+        `Período: ${formatDate(from)} a ${formatDate(to)}`,
+      ],
+      projetoLogoPath: selected?.logo_path ?? null,
+    });
+
+    doc.setFontSize(10);
+    doc.setTextColor(40);
+    doc.text(
+      `Entradas: ${formatMZN(totais.entradas)}    Saídas: ${formatMZN(totais.saidas)}    Saldo: ${formatMZN(totais.saldo)}`,
+      doc.internal.pageSize.getWidth() / 2,
+      startY,
+      { align: "center" },
+    );
+
     autoTable(doc, {
-      startY: 48,
+      startY: startY + 6,
       head: [["Data", "Projeto", "Tipo", "Descrição", "Valor (MZN)"]],
       body: rows.map((r) => [
         formatDate(r.data),
@@ -105,8 +116,10 @@ function CashflowPage() {
         r.descricao ?? "",
         Number(r.valor).toLocaleString("pt-PT", { minimumFractionDigits: 2 }),
       ]),
-      headStyles: { fillColor: [20, 83, 45] },
-      styles: { fontSize: 9 },
+      headStyles: { fillColor: [20, 83, 45], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 247, 244] },
+      styles: { fontSize: 9, cellPadding: 2.5 },
+      margin: { left: 14, right: 14 },
     });
     doc.save(`fluxo-caixa-${from}-${to}.pdf`);
   }
