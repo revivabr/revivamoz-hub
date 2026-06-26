@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatMZN, formatDate } from "@/lib/format";
+import { drawReportHeader } from "@/lib/pdf-header";
 
 export const Route = createFileRoute("/_authenticated/fluxo-caixa")({
   head: () => ({
