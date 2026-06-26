@@ -41,22 +41,32 @@ function PieBlock({
         {data.length === 0 ? (
           <p className="py-10 text-center text-sm text-muted-foreground">Sem dados.</p>
         ) : (
-          <div className="h-64 w-full">
+          <div className="h-72 w-full">
             <ResponsiveContainer>
-              <PieChart>
+              <PieChart margin={{ top: 16, right: 16, bottom: 8, left: 16 }}>
                 <Pie
                   data={data}
                   dataKey="value"
                   nameKey="name"
-                  innerRadius={45}
-                  outerRadius={85}
+                  innerRadius="45%"
+                  outerRadius="75%"
                   paddingAngle={2}
                   isAnimationActive
                   animationDuration={800}
                   animationEasing="ease-out"
-                  label={(e: { percent?: number }) =>
-                    e.percent && e.percent > 0.05 ? `${Math.round(e.percent * 100)}%` : ""
-                  }
+                  labelLine={false}
+                  label={(e: { percent?: number; cx?: number; cy?: number; midAngle?: number; innerRadius?: number; outerRadius?: number }) => {
+                    if (!e.percent || e.percent < 0.05) return null;
+                    const RAD = Math.PI / 180;
+                    const r = (e.innerRadius! + e.outerRadius!) / 2;
+                    const x = e.cx! + r * Math.cos(-e.midAngle! * RAD);
+                    const y = e.cy! + r * Math.sin(-e.midAngle! * RAD);
+                    return (
+                      <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={600}>
+                        {Math.round(e.percent * 100)}%
+                      </text>
+                    );
+                  }}
                 >
                   {data.map((_, i) => (
                     <Cell key={i} fill={COLORS[i % COLORS.length]} stroke="var(--card)" strokeWidth={2} />
@@ -70,6 +80,7 @@ function PieBlock({
                   cursor={{ fill: "var(--muted)", opacity: 0.4 }}
                 />
                 <Legend verticalAlign="bottom" height={36} wrapperStyle={legendStyle} />
+
               </PieChart>
             </ResponsiveContainer>
           </div>
