@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Search, Moon, Sun, Languages, HelpCircle, LogOut } from "lucide-react";
+import { Search, Moon, Sun, Languages, LogOut } from "lucide-react";
 import { NotificationsBell } from "@/components/notifications/NotificationsBell";
 import { OfflineBadge } from "@/components/layout/OfflineBadge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/lib/theme";
 import { useI18n } from "@/lib/i18n";
-import { useOnboarding } from "@/components/onboarding/OnboardingTour";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import {
