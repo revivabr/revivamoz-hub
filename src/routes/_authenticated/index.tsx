@@ -1,16 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { PiggyBank, TrendingUp, TrendingDown, FolderKanban, Filter } from "lucide-react";
+import { PiggyBank, TrendingUp, TrendingDown, FolderKanban, Filter, Activity } from "lucide-react";
 import {
-  Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis,
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer,
+  Tooltip, XAxis, YAxis,
 } from "recharts";
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { KpiCard } from "@/components/dashboard/KpiCard";
+import { CategoriaPies } from "@/components/projetos/CategoriaPies";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -24,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Visão Global · Reviva Moz" },
-      { name: "description", content: "Painel consolidado: KPIs, comparativos e saúde financeira por projeto." },
+      { name: "description", content: "Painel consolidado em tempo real: KPIs, comparativos, categorias e saúde financeira." },
     ],
   }),
   component: DashboardPage,
@@ -37,20 +38,25 @@ type Projeto = {
 type Lancamento = {
   id: string; projeto_id: string; tipo: "entrada" | "saida";
   valor: number; data: string; descricao: string | null;
+  categoria_id: string | null;
 };
+type Categoria = { id: string; nome: string };
 
-function startOfMonthISO() {
-  const d = new Date(); d.setDate(1); d.setHours(0, 0, 0, 0);
+function startOfYearISO() {
+  const d = new Date(); d.setMonth(0, 1); d.setHours(0, 0, 0, 0);
   return d.toISOString().slice(0, 10);
 }
 function todayISO() { return new Date().toISOString().slice(0, 10); }
+
+const DEFAULT_PROJETO_NAME = "Reviva-Moz Adm Geral";
 
 function DashboardPage() {
   const { t, locale } = useI18n();
   const [projetoId, setProjetoId] = useState<string>("all");
   const [tipo, setTipo] = useState<string>("all");
-  const [from, setFrom] = useState<string>(startOfMonthISO());
+  const [from, setFrom] = useState<string>(startOfYearISO());
   const [to, setTo] = useState<string>(todayISO());
+  const [defaultApplied, setDefaultApplied] = useState(false);
 
   const { data: projetos = [] } = useQuery({
     queryKey: ["dash-projetos"],
@@ -63,6 +69,23 @@ function DashboardPage() {
       return data as Projeto[];
     },
   });
+
+  const { data: categorias = [] } = useQuery({
+    queryKey: ["dash-categorias"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("categorias").select("id,nome");
+      if (error) throw error;
+      return data as Categoria[];
+    },
+  });
+
+  // Aplicar projeto padrão (Reviva-Moz Adm Geral) na primeira carga
+  useEffect(() => {
+    if (defaultApplied || projetos.length === 0) return;
+    const def = projetos.find((p) => p.nome === DEFAULT_PROJETO_NAME);
+    if (def) setProjetoId(def.id);
+    setDefaultApplied(true);
+  }, [projetos, defaultApplied]);
 
   const projetosFiltrados = useMemo(() => projetos.filter((p) =>
     (tipo === "all" || p.tipo === tipo) &&
@@ -77,7 +100,7 @@ function DashboardPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("lancamentos")
-        .select("id,projeto_id,tipo,valor,data,descricao")
+        .select("id,projeto_id,tipo,valor,data,descricao,categoria_id")
         .in("projeto_id", projetosIds)
         .gte("data", from).lte("data", to)
         .order("data", { ascending: false });
@@ -110,6 +133,42 @@ function DashboardPage() {
     return Array.from(map.entries()).map(([id, v]) => ({ id, ...v }));
   }, [projetosFiltrados, lancamentos]);
 
+  // Evolução mensal (entradas / saídas / saldo acumulado)
+  const evolucao = useMemo(() => {
+    const months = new Map<string, { mes: string; entradas: number; saidas: number }>();
+    for (const l of lancamentos) {
+      const k = l.data.slice(0, 7);
+      const row = months.get(k) ?? { mes: k, entradas: 0, saidas: 0 };
+      if (l.tipo === "entrada") row.entradas += Number(l.valor);
+      else row.saidas += Number(l.valor);
+      months.set(k, row);
+    }
+    const ordered = Array.from(months.values()).sort((a, b) => a.mes.localeCompare(b.mes));
+    let acc = 0;
+    return ordered.map((r) => {
+      acc += r.entradas - r.saidas;
+      return { ...r, saldo: acc };
+    });
+  }, [lancamentos]);
+
+  // Top 5 categorias de saída
+  const topSaidas = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const l of lancamentos) {
+      if (l.tipo !== "saida") continue;
+      const k = l.categoria_id ?? "__none__";
+      map.set(k, (map.get(k) ?? 0) + Number(l.valor));
+    }
+    const nameOf = (id: string) =>
+      id === "__none__" ? "Sem categoria" : categorias.find((c) => c.id === id)?.nome ?? "Outros";
+    return Array.from(map.entries())
+      .map(([id, valor]) => ({ nome: nameOf(id), valor }))
+      .sort((a, b) => b.valor - a.valor)
+      .slice(0, 5);
+  }, [lancamentos, categorias]);
+
+  const fmt = (v: number) => formatMZN(v, { locale });
+
   return (
     <DashboardLayout title={t("nav.overview")}>
       <div className="space-y-5">
@@ -118,6 +177,7 @@ function DashboardPage() {
             <CardTitle className="flex items-center gap-2 text-base">
               <Filter className="h-4 w-4" /> Filtros
             </CardTitle>
+            <CardDescription>Os dados, gráficos e KPIs atualizam em tempo real conforme os filtros.</CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-1">
@@ -153,7 +213,7 @@ function DashboardPage() {
           </CardContent>
         </Card>
 
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 animate-fade-in">
           <KpiCard title={t("kpi.global_balance")} value={formatMZN(kpis.saldo, { compact: true, locale })}
             hint={t("kpi.updated_now")} icon={PiggyBank} accent="primary" />
           <KpiCard title={t("kpi.revenue")} value={formatMZN(kpis.entradas, { compact: true, locale })}
@@ -164,31 +224,97 @@ function DashboardPage() {
             hint={`${projetosFiltrados.length} no filtro`} icon={FolderKanban} accent="accent" />
         </section>
 
-        <Card>
+        <CategoriaPies lancamentos={lancamentos} categorias={categorias} fmt={fmt} />
+
+        <Card className="animate-fade-in">
           <CardHeader>
-            <CardTitle className="text-base">Comparativo por projeto</CardTitle>
-            <CardDescription>Entradas vs saídas no período selecionado.</CardDescription>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Activity className="h-4 w-4" /> Evolução mensal
+            </CardTitle>
+            <CardDescription>Entradas, saídas e saldo acumulado no período.</CardDescription>
           </CardHeader>
           <CardContent className="h-72">
-            {porProjeto.length === 0 ? (
+            {evolucao.length === 0 ? (
               <p className="text-sm text-muted-foreground">Sem dados para os filtros atuais.</p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={porProjeto}>
+                <AreaChart data={evolucao}>
+                  <defs>
+                    <linearGradient id="gEnt" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="gSai" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(var(--destructive))" stopOpacity={0.5} />
+                      <stop offset="100%" stopColor="hsl(var(--destructive))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="nome" tick={{ fontSize: 11 }} />
+                  <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip formatter={(v: number) => formatMZN(v, { locale })} />
+                  <Tooltip formatter={(v: number) => fmt(Number(v))} />
                   <Legend />
-                  <Bar dataKey="entradas" fill="hsl(var(--primary))" name="Entradas" />
-                  <Bar dataKey="saidas" fill="hsl(var(--destructive))" name="Saídas" />
-                </BarChart>
+                  <Area type="monotone" dataKey="entradas" name="Entradas"
+                    stroke="hsl(var(--primary))" fill="url(#gEnt)" isAnimationActive animationDuration={700} />
+                  <Area type="monotone" dataKey="saidas" name="Saídas"
+                    stroke="hsl(var(--destructive))" fill="url(#gSai)" isAnimationActive animationDuration={700} />
+                  <Area type="monotone" dataKey="saldo" name="Saldo acumulado"
+                    stroke="hsl(var(--accent-foreground))" fillOpacity={0} isAnimationActive animationDuration={900} />
+                </AreaChart>
               </ResponsiveContainer>
             )}
           </CardContent>
         </Card>
 
-        <Card>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Card className="animate-fade-in">
+            <CardHeader>
+              <CardTitle className="text-base">Comparativo por projeto</CardTitle>
+              <CardDescription>Entradas vs saídas no período.</CardDescription>
+            </CardHeader>
+            <CardContent className="h-72">
+              {porProjeto.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Sem dados para os filtros atuais.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={porProjeto}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="nome" tick={{ fontSize: 11 }} interval={0} angle={-15} textAnchor="end" height={60} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip formatter={(v: number) => fmt(Number(v))} />
+                    <Legend />
+                    <Bar dataKey="entradas" fill="hsl(var(--primary))" name="Entradas" isAnimationActive animationDuration={700} />
+                    <Bar dataKey="saidas" fill="hsl(var(--destructive))" name="Saídas" isAnimationActive animationDuration={700} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="animate-fade-in">
+            <CardHeader>
+              <CardTitle className="text-base">Top 5 saídas por categoria</CardTitle>
+              <CardDescription>Onde a organização mais gasta no período.</CardDescription>
+            </CardHeader>
+            <CardContent className="h-72">
+              {topSaidas.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Sem saídas no período.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={topSaidas} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis type="number" tick={{ fontSize: 11 }} />
+                    <YAxis dataKey="nome" type="category" tick={{ fontSize: 11 }} width={120} />
+                    <Tooltip formatter={(v: number) => fmt(Number(v))} />
+                    <Bar dataKey="valor" fill="hsl(var(--destructive))" name="Saídas" isAnimationActive animationDuration={700} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="animate-fade-in">
           <CardHeader>
             <CardTitle className="text-base">Saúde financeira por projeto</CardTitle>
             <CardDescription>Semáforo baseado em saídas vs orçamento. Clique para drill-down.</CardDescription>
@@ -224,7 +350,7 @@ function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="animate-fade-in">
           <CardHeader>
             <CardTitle className="text-base">Últimas transações</CardTitle>
             <CardDescription>Drill-down: clique para abrir o painel do projeto.</CardDescription>
