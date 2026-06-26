@@ -48,24 +48,34 @@ function PublicReport() {
 
   const saldo = Number(data.kpis.entradas) - Number(data.kpis.saidas);
 
-  function exportPDF() {
+  async function exportPDF() {
     if (!data) return;
     const doc = new jsPDF();
-    doc.setFontSize(16); doc.setTextColor(20, 83, 45);
-    doc.text("Reviva Moz · Relatório Financeiro", 14, 18);
-    doc.setFontSize(11); doc.setTextColor(60);
-    doc.text(`Projeto: ${data.projeto.nome}`, 14, 28);
-    doc.text(`Período: ${formatDate(data.periodo.inicio)} a ${formatDate(data.periodo.fim)}`, 14, 34);
-    doc.text(`Entradas: ${formatMZN(Number(data.kpis.entradas))}   Saídas: ${formatMZN(Number(data.kpis.saidas))}   Saldo: ${formatMZN(saldo)}`, 14, 40);
+    const startY = await drawReportHeader(doc, {
+      title: "Relatório Financeiro",
+      subtitleLines: [
+        data.projeto.nome,
+        `Período: ${formatDate(data.periodo.inicio)} a ${formatDate(data.periodo.fim)}`,
+      ],
+      projetoLogoPath: (data.projeto as { logo_path?: string | null }).logo_path ?? null,
+    });
+    doc.setFontSize(10); doc.setTextColor(40);
+    doc.text(
+      `Entradas: ${formatMZN(Number(data.kpis.entradas))}    Saídas: ${formatMZN(Number(data.kpis.saidas))}    Saldo: ${formatMZN(saldo)}`,
+      doc.internal.pageSize.getWidth() / 2, startY, { align: "center" },
+    );
     autoTable(doc, {
-      startY: 48,
+      startY: startY + 6,
       head: [["Data", "Tipo", "Categoria", "Descrição", "Valor (MZN)"]],
       body: data.lancamentos.map((l) => [
         formatDate(l.data), l.tipo === "entrada" ? "Entrada" : "Saída",
         l.categoria ?? "—", l.descricao ?? "",
         Number(l.valor).toLocaleString("pt-PT", { minimumFractionDigits: 2 }),
       ]),
-      headStyles: { fillColor: [20, 83, 45] }, styles: { fontSize: 9 },
+      headStyles: { fillColor: [20, 83, 45], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 247, 244] },
+      styles: { fontSize: 9, cellPadding: 2.5 },
+      margin: { left: 14, right: 14 },
     });
     doc.save(`relatorio-${data.projeto.nome}.pdf`);
   }
