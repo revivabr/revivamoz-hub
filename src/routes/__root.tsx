@@ -15,7 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "../lib/theme";
 import { I18nProvider } from "../lib/i18n";
 import { TooltipProvider } from "../components/ui/tooltip";
-import { OnboardingProvider } from "../components/onboarding/OnboardingTour";
+
 import { supabase } from "../integrations/supabase/client";
 
 function NotFoundComponent() {
