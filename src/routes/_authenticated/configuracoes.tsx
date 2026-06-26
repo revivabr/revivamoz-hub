@@ -460,7 +460,7 @@ function UsersListCard() {
   });
 
   const update = useMutation({
-    mutationFn: (vars: { userId: string; fullName: string; projetoId: string; papel: "gestor" | "financiador" | "leitor" }) =>
+    mutationFn: (vars: { userId: string; fullName: string; projetoIds: string[]; papel: "gestor" | "financiador" | "leitor" }) =>
       updateUser({ data: vars }),
     onSuccess: () => { toast.success("Utilizador atualizado."); invalidate(); setEditing(null); },
     onError: (e: Error) => toast.error(e.message),
@@ -485,12 +485,27 @@ function UsersListCard() {
   rows.sort((a, b) => a.projetoNome.localeCompare(b.projetoNome));
 
   const [editing, setEditing] = useState<Row | null>(null);
-  const [editForm, setEditForm] = useState({ fullName: "", projetoId: "", papel: "gestor" as "gestor" | "financiador" | "leitor" });
+  const [editForm, setEditForm] = useState({
+    fullName: "", projetoIds: [] as string[],
+    papel: "gestor" as "gestor" | "financiador" | "leitor",
+  });
 
   function openEdit(r: Row) {
     setEditing(r);
-    setEditForm({ fullName: r.fullName, projetoId: r.projetoId, papel: (r.papel as any) ?? "gestor" });
+    const user = users.find((u) => u.id === r.id);
+    const ids = (user?.membros ?? [])
+      .map((m: any) => projetos.find((p) => p.nome === m.projeto)?.id)
+      .filter((x): x is string => !!x);
+    setEditForm({ fullName: r.fullName, projetoIds: ids, papel: (r.papel as any) ?? "gestor" });
   }
+
+  const toggleEditProjeto = (id: string) =>
+    setEditForm((f) => ({
+      ...f,
+      projetoIds: f.projetoIds.includes(id)
+        ? f.projetoIds.filter((x) => x !== id)
+        : [...f.projetoIds, id],
+    }));
 
   return (
     <Card>
