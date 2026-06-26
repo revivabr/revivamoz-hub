@@ -18,6 +18,8 @@ import { toast } from "sonner";
 import { AiProvedoresCard } from "@/components/configuracoes/AiProvedoresCard";
 import { Mail } from "lucide-react";
 import { testBrevoEmail } from "@/lib/notifications.functions";
+import { seedDemoData, clearDemoData, countDemoData } from "@/lib/demo-data.functions";
+import { Database } from "lucide-react";
 
 
 
