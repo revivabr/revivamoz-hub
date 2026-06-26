@@ -99,20 +99,30 @@ function ReportsPage() {
     return { entradas, saidas, saldo: entradas - saidas };
   }, [lancamentos]);
 
-  function exportPDF() {
+  async function exportPDF() {
     if (!projeto) return;
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.setTextColor(20, 83, 45);
-    doc.text("Reviva Moz · Relatório Financeiro", 14, 18);
-    doc.setFontSize(11);
-    doc.setTextColor(60);
-    doc.text(`Projeto: ${projeto.nome}`, 14, 28);
-    doc.text(`Período: ${formatDate(from)} a ${formatDate(to)}`, 14, 34);
-    doc.text(`Entradas: ${formatMZN(kpis.entradas)}   Saídas: ${formatMZN(kpis.saidas)}   Saldo: ${formatMZN(kpis.saldo)}`, 14, 40);
+    const startY = await drawReportHeader(doc, {
+      title: "Relatório Financeiro",
+      subtitleLines: [
+        projeto.nome,
+        `Período: ${formatDate(from)} a ${formatDate(to)}`,
+      ],
+      projetoLogoPath: projeto.logo_path,
+    });
+
+    // KPI strip
+    doc.setFontSize(10);
+    doc.setTextColor(40);
+    doc.text(
+      `Entradas: ${formatMZN(kpis.entradas)}    Saídas: ${formatMZN(kpis.saidas)}    Saldo: ${formatMZN(kpis.saldo)}`,
+      doc.internal.pageSize.getWidth() / 2,
+      startY,
+      { align: "center" },
+    );
 
     autoTable(doc, {
-      startY: 48,
+      startY: startY + 6,
       head: [["Data", "Tipo", "Categoria", "Descrição", "Valor (MZN)"]],
       body: lancamentos.map((l) => [
         formatDate(l.data),
@@ -121,8 +131,10 @@ function ReportsPage() {
         l.descricao ?? "",
         Number(l.valor).toLocaleString("pt-PT", { minimumFractionDigits: 2 }),
       ]),
-      headStyles: { fillColor: [20, 83, 45] },
-      styles: { fontSize: 9 },
+      headStyles: { fillColor: [20, 83, 45], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 247, 244] },
+      styles: { fontSize: 9, cellPadding: 2.5 },
+      margin: { left: 14, right: 14 },
     });
 
     doc.save(`relatorio-${projeto.nome}-${from}-${to}.pdf`);
