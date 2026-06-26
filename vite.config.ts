@@ -12,4 +12,19 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    optimizeDeps: {
+      include: [
+        "marked",
+        "jspdf",
+        "jspdf-autotable",
+        "react-markdown",
+        "remark-gfm",
+        "recharts",
+        "xlsx",
+        "date-fns",
+        "lucide-react",
+      ],
+    },
+  },
 });
