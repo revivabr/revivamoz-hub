@@ -129,8 +129,8 @@ function ProjetoDashboard() {
       </div>
 
       <div className="mb-4 grid gap-4 md:grid-cols-[480px_1fr] md:items-start">
-        <div className="space-y-2">
-          {isGestor ? (
+        <div className="space-y-3">
+          {isSuperAdmin ? (
             <ProjetoLogoUploader
               projetoId={projeto.id}
               nome={projeto.nome}
@@ -140,11 +140,23 @@ function ProjetoDashboard() {
           ) : (
             <ProjetoLogo projetoId={projeto.id} nome={projeto.nome} logoPath={projeto.logo_path} />
           )}
+          {isGestor && (
+            <NovoLancamentoDialog
+              projetoId={projetoId}
+              categorias={categorias}
+              etapas={etapas}
+              userId={me?.id ?? ""}
+              onSaved={invalidate("lancamentos")}
+              triggerSize="lg"
+              triggerFullWidth
+            />
+          )}
         </div>
         {projeto.descricao && (
           <p className="text-sm text-muted-foreground">{projeto.descricao}</p>
         )}
       </div>
+
 
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
