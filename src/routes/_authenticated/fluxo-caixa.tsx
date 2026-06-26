@@ -55,9 +55,9 @@ function CashflowPage() {
   const { data: projetos = [] } = useQuery({
     queryKey: ["fc-projetos"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("projetos").select("id,nome").order("nome");
+      const { data, error } = await supabase.from("projetos").select("id,nome,logo_path").order("nome");
       if (error) throw error;
-      return data as { id: string; nome: string }[];
+      return data as { id: string; nome: string; logo_path: string | null }[];
     },
   });
 
