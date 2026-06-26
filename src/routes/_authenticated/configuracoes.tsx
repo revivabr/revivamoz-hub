@@ -122,6 +122,7 @@ function SettingsPage() {
       <SeedGestoresCard />
       <BrevoTestCard />
       <AiProvedoresCard />
+      <DemoDataCard />
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
