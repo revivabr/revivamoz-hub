@@ -210,7 +210,7 @@ function CreateUserCard() {
   const createUser = useServerFn(adminCreateUser);
   const [form, setForm] = useState({
     fullName: "", email: "", password: "",
-    projetoId: "", papel: "leitor" as "gestor" | "financiador" | "leitor",
+    projetoIds: [] as string[], papel: "leitor" as "gestor" | "financiador" | "leitor",
   });
 
   const { data: projetos = [] } = useQuery({
@@ -227,14 +227,25 @@ function CreateUserCard() {
 
   const mutation = useMutation({
     mutationFn: () => createUser({ data: form }),
-    onSuccess: () => {
-      toast.success("Utilizador criado e associado ao projeto.");
-      setForm({ fullName: "", email: "", password: "", projetoId: "", papel: "leitor" });
+    onSuccess: (r: any) => {
+      toast.success(
+        r?.created
+          ? `Utilizador criado e associado a ${r.projetos} projeto(s).`
+          : `Utilizador já existia — associado a ${r.projetos} projeto(s).`,
+      );
+      setForm({ fullName: "", email: "", password: "", projetoIds: [], papel: "leitor" });
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const toggleProjeto = (id: string) =>
+    setForm((f) => ({
+      ...f,
+      projetoIds: f.projetoIds.includes(id)
+        ? f.projetoIds.filter((x) => x !== id)
+        : [...f.projetoIds, id],
+    }));
 
   return (
     <Card>
@@ -243,8 +254,8 @@ function CreateUserCard() {
           <KeyRound className="h-5 w-5" /> Criar utilizador
         </CardTitle>
         <CardDescription>
-          Emita credenciais e associe imediatamente o utilizador ao projeto/programa a que terá
-          acesso restrito.
+          Emita credenciais e seleccione um ou mais projetos/programas a que o utilizador terá
+          acesso. Se o e-mail já existir, apenas serão adicionados os novos vínculos.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -252,7 +263,7 @@ function CreateUserCard() {
           className="grid gap-3 sm:grid-cols-2"
           onSubmit={(e) => {
             e.preventDefault();
-            if (!form.projetoId) { toast.error("Seleccione um projeto."); return; }
+            if (form.projetoIds.length === 0) { toast.error("Seleccione pelo menos um projeto."); return; }
             mutation.mutate();
           }}
         >
@@ -271,22 +282,35 @@ function CreateUserCard() {
             <Input type="text" minLength={8} required value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })} />
           </div>
-          <div className="space-y-1">
-            <Label>Projeto / Programa</Label>
-            <select
-              required
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
-              value={form.projetoId}
-              onChange={(e) => setForm({ ...form, projetoId: e.target.value })}
-            >
-              <option value="">— Seleccionar —</option>
-              {projetos.map((p) => (
-                <option key={p.id} value={p.id}>{p.nome}</option>
-              ))}
-            </select>
+          <div className="space-y-1 sm:col-span-2">
+            <Label>Projetos / Programas ({form.projetoIds.length} seleccionado{form.projetoIds.length === 1 ? "" : "s"})</Label>
+            <div className="flex flex-wrap gap-2 rounded-md border border-input bg-background p-2">
+              {projetos.map((p) => {
+                const active = form.projetoIds.includes(p.id);
+                return (
+                  <button
+                    type="button"
+                    key={p.id}
+                    onClick={() => toggleProjeto(p.id)}
+                    className={
+                      "rounded-full border px-3 py-1 text-xs transition " +
+                      (active
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-input bg-background hover:bg-muted")
+                    }
+                  >
+                    {active ? "✓ " : "+ "}{p.nome}
+                  </button>
+                );
+              })}
+              {projetos.length === 0 && (
+                <span className="text-xs text-muted-foreground">Sem projetos disponíveis.</span>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">Clique nos projetos para adicionar ou remover.</p>
           </div>
           <div className="space-y-1">
-            <Label>Papel no projeto</Label>
+            <Label>Papel (aplicado a todos os projetos seleccionados)</Label>
             <select
               className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
               value={form.papel}
