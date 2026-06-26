@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/relatorios")({
   component: ReportsPage,
 });
 
-type Projeto = { id: string; nome: string; moeda: string; orcamento: number };
+type Projeto = { id: string; nome: string; moeda: string; orcamento: number; logo_path: string | null };
 type Lanc = {
   id: string; data: string; tipo: "entrada" | "saida"; valor: number;
   descricao: string | null; categoria_id: string | null;
