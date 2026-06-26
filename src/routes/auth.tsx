@@ -73,24 +73,25 @@ function AuthPage() {
 
         {/* Form */}
         <div className="flex items-center justify-center px-4 py-10">
-          <div className="w-full max-w-md space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <div className="w-full max-w-md space-y-6">
             <div className="lg:hidden">
               <img
                 src={hero}
                 alt="Associação RevivaMoz"
-                className="mb-6 w-full rounded-xl object-cover"
+                className="w-full rounded-2xl object-cover shadow-sm"
               />
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-white">
-                <img src={logoUrl} alt="RevivaMoz" className="h-full w-full object-cover" />
+            <div className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-white">
+                  <img src={logoUrl} alt="RevivaMoz" className="h-full w-full object-cover" />
+                </div>
+                <div className="text-left">
+                  <h1 className="text-2xl font-bold tracking-tight text-foreground">RevivaMoz</h1>
+                  <p className="mt-1 text-sm text-muted-foreground">Gestão Financeira</p>
+                </div>
               </div>
-              <div className="text-left">
-                <h1 className="text-2xl font-bold tracking-tight text-foreground">RevivaMoz</h1>
-                <p className="mt-1 text-sm text-muted-foreground">Gestão Financeira</p>
-              </div>
-            </div>
 
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
