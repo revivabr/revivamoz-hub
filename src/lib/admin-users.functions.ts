@@ -49,24 +49,35 @@ export const adminCreateUser = createServerFn({ method: "POST" })
     if (!isAdmin) throw new Error("Apenas Super Admins podem criar utilizadores.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
-      email: data.email,
-      password: data.password,
-      email_confirm: true,
-      user_metadata: { full_name: data.fullName },
-    });
-    if (error) throw new Error(error.message);
 
-    const userId = created.user?.id;
-    if (!userId) throw new Error("Falha ao obter ID do utilizador criado.");
+    // Procura utilizador existente por e-mail; se já existir, apenas adicionamos vínculos.
+    let userId: string | undefined;
+    let createdNow = false;
+    const { data: list } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
+    const existing = list?.users?.find((u) => u.email?.toLowerCase() === data.email.toLowerCase());
+    if (existing) {
+      userId = existing.id;
+    } else {
+      const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+        email: data.email,
+        password: data.password,
+        email_confirm: true,
+        user_metadata: { full_name: data.fullName },
+      });
+      if (error) throw new Error(error.message);
+      userId = created.user?.id;
+      createdNow = true;
+    }
+    if (!userId) throw new Error("Falha ao obter ID do utilizador.");
 
-    // Associa o utilizador ao projeto/programa indicado.
+    // Associa o utilizador a todos os projetos indicados (upsert evita duplicados).
+    const rows = data.projetoIds.map((projeto_id) => ({ projeto_id, user_id: userId!, papel: data.papel }));
     const { error: memErr } = await supabaseAdmin
       .from("projeto_membros")
-      .insert({ projeto_id: data.projetoId, user_id: userId, papel: data.papel });
-    if (memErr) throw new Error(`Utilizador criado, mas falhou associação ao projeto: ${memErr.message}`);
+      .upsert(rows, { onConflict: "projeto_id,user_id" });
+    if (memErr) throw new Error(`Utilizador ${createdNow ? "criado" : "encontrado"}, mas falhou associação: ${memErr.message}`);
 
-    return { id: userId, email: created.user?.email };
+    return { id: userId, email: data.email, created: createdNow, projetos: data.projetoIds.length };
   });
 
 export const adminSeedGestores = createServerFn({ method: "POST" })
