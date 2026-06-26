@@ -193,15 +193,7 @@ function ProjetoDashboard() {
         </TabsList>
 
         <TabsContent value="lancamentos" className="mt-4 space-y-4">
-          {isGestor && (
-            <NovoLancamentoDialog
-              projetoId={projetoId}
-              categorias={categorias}
-              etapas={etapas}
-              userId={me?.id ?? ""}
-              onSaved={invalidate("lancamentos")}
-            />
-          )}
+
           <LancamentosLista
             lancamentos={lancamentos}
             categorias={categorias}
