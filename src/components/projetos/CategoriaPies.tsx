@@ -59,11 +59,17 @@ function PieBlock({
                   }
                 >
                   {data.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} stroke="var(--card)" strokeWidth={2} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(v: number) => fmt(Number(v))} />
-                <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: 12 }} />
+                <Tooltip
+                  formatter={(v: number) => fmt(Number(v))}
+                  contentStyle={tooltipContentStyle}
+                  labelStyle={tooltipLabelStyle}
+                  itemStyle={tooltipItemStyle}
+                  cursor={{ fill: "var(--muted)", opacity: 0.4 }}
+                />
+                <Legend verticalAlign="bottom" height={36} wrapperStyle={legendStyle} />
               </PieChart>
             </ResponsiveContainer>
           </div>
