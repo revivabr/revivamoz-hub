@@ -34,6 +34,10 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f docs/sql/seed.sql
    `relatorio_partilhas`.
 6. Buckets do storage só depois das funções de membership existirem (as policies
    chamam-nas).
+7. O bloco final do schema (REVOKE/GRANT EXECUTE) corre sempre por último — fecha
+   o acesso público às funções `SECURITY DEFINER` e reabre apenas as
+   estritamente necessárias (`has_role`, `is_projeto_member`, `is_projeto_gestor`,
+   as RPCs da UI e `get_relatorio_publico` para o portal público).
 
 ## Migrations incrementais
 

@@ -673,5 +673,30 @@ BEGIN
   );
 END $$;
 
--- get_relatorio_publico precisa ser executável por anon (portal público)
+-- =============================================================================
+-- LOCK-DOWN DE EXECUTE EM FUNÇÕES SECURITY DEFINER
+-- =============================================================================
+-- Por defeito o Postgres concede EXECUTE em todas as funções a PUBLIC.
+-- Revogamos tudo e voltamos a conceder apenas o estritamente necessário.
+
+REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA public FROM PUBLIC, anon, authenticated;
+
+-- Helpers de RLS chamados implicitamente pelas policies — precisam de EXECUTE
+-- ao role authenticated, caso contrário toda a aplicação devolve permission denied.
+GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_projeto_member(uuid, uuid)   TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_projeto_gestor(uuid, uuid)   TO authenticated;
+
+-- RPCs invocadas pela UI (apenas utilizadores autenticados)
+GRANT EXECUTE ON FUNCTION public.accept_projeto_convite(uuid)        TO authenticated;
+GRANT EXECUTE ON FUNCTION public.grant_super_admin_by_email(text)    TO authenticated;
+GRANT EXECUTE ON FUNCTION public.revoke_super_admin_by_email(text)   TO authenticated;
+GRANT EXECUTE ON FUNCTION public.list_super_admins()                 TO authenticated;
+GRANT EXECUTE ON FUNCTION public.list_ai_provedores_publico()        TO authenticated;
+
+-- Portal público de relatórios (anon + authenticated)
 GRANT EXECUTE ON FUNCTION public.get_relatorio_publico(text) TO anon, authenticated;
+
+-- service_role mantém acesso completo
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO service_role;
+
