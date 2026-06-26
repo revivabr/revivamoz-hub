@@ -66,7 +66,7 @@ function AssistentePage() {
 
   const { data: conversas = [] } = useQuery({
     queryKey: ["assistente-conversas"],
-    queryFn: () => list({}),
+    queryFn: () => list(),
   });
 
   useEffect(() => {
