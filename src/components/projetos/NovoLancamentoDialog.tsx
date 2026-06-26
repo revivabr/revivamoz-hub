@@ -21,7 +21,10 @@ interface Props {
   etapas: Etapa[];
   userId: string;
   onSaved: () => void;
+  triggerSize?: "default" | "sm" | "lg";
+  triggerFullWidth?: boolean;
 }
+
 
 const initialForm = () => ({
   tipo: "saida" as "entrada" | "saida",
