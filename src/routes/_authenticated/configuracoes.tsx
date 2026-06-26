@@ -596,3 +596,49 @@ function UsersListCard() {
   );
 }
 
+function DemoDataCard() {
+  const qc = useQueryClient();
+  const seed = useServerFn(seedDemoData);
+  const clear = useServerFn(clearDemoData);
+  const count = useServerFn(countDemoData);
+  const { data } = useQuery({ queryKey: ["demo-count"], queryFn: () => count({}) });
+  const seedM = useMutation({
+    mutationFn: () => seed({}),
+    onSuccess: (r: any) => { toast.success(`Inseridos ${r.inserted} lançamentos fictícios em ${r.projetos} projetos.`); qc.invalidateQueries(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const clearM = useMutation({
+    mutationFn: () => clear({}),
+    onSuccess: (r: any) => { toast.success(`Removidos ${r.removed} lançamentos fictícios.`); qc.invalidateQueries(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2"><Database className="h-5 w-5" /> Dados Fictícios (Demo)</CardTitle>
+        <CardDescription>
+          Insere lançamentos de exemplo para visualizar gráficos e KPIs. <strong>Somente</strong> linhas
+          marcadas como demo (<code>is_demo = true</code>) são afetadas — projetos, utilizadores, categorias
+          e lançamentos reais <strong>nunca</strong> são tocados. Use "Limpar dados demo" antes de produção.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="text-sm text-muted-foreground">
+          Lançamentos demo atualmente: <Badge variant="secondary">{data?.count ?? "—"}</Badge>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => seedM.mutate()} disabled={seedM.isPending}>
+            {seedM.isPending ? "A gerar…" : "Gerar dados fictícios (6 meses)"}
+          </Button>
+          <Button variant="destructive" onClick={() => {
+            if (confirm("Remover TODOS os lançamentos fictícios? (Dados reais não serão afetados.)")) clearM.mutate();
+          }} disabled={clearM.isPending}>
+            {clearM.isPending ? "A limpar…" : "Limpar dados demo"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+
