@@ -54,7 +54,7 @@ function ReportsPage() {
     queryKey: ["rel-projetos"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("projetos").select("id,nome,moeda,orcamento").order("nome");
+        .from("projetos").select("id,nome,moeda,orcamento,logo_path").order("nome");
       if (error) throw error;
       if (data?.length && !projetoId) setProjetoId(data[0].id);
       return data as Projeto[];
