@@ -175,7 +175,12 @@ export const adminResetPassword = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
       password: data.password,
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      const msg = /weak|pwned|known/i.test(error.message)
+        ? "Senha demasiado fraca ou comprometida em fugas de dados. Use 12+ caracteres com maiúsculas, números e símbolos (evite padrões como 123456, password, nome@123)."
+        : error.message;
+      throw new Error(msg);
+    }
     return { ok: true };
   });
 
