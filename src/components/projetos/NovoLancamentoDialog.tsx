@@ -23,7 +23,9 @@ interface Props {
   onSaved: () => void;
   triggerSize?: "default" | "sm" | "lg";
   triggerFullWidth?: boolean;
+  isSuperAdmin?: boolean;
 }
+
 
 
 const initialForm = () => ({
