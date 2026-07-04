@@ -227,3 +227,61 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+
+const createSuperAdminSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  fullName: z.string().trim().min(1),
+});
+
+export const adminCreateSuperAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => createSuperAdminSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId, _role: "super_admin",
+    });
+    if (!isAdmin) throw new Error("Apenas Super Admins podem criar Super Admins.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Reutiliza conta existente ou cria nova com senha definida.
+    let userId: string | undefined;
+    let created = false;
+    const { data: list } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
+    const existing = list?.users?.find((u) => u.email?.toLowerCase() === data.email.toLowerCase());
+    if (existing) {
+      userId = existing.id;
+      // Atualiza a senha para a definida pelo admin.
+      const { error: upErr } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+        password: data.password,
+        user_metadata: { ...(existing.user_metadata ?? {}), full_name: data.fullName },
+      });
+      if (upErr) throw new Error(upErr.message);
+    } else {
+      const { data: c, error } = await supabaseAdmin.auth.admin.createUser({
+        email: data.email,
+        password: data.password,
+        email_confirm: true,
+        user_metadata: { full_name: data.fullName },
+      });
+      if (error) {
+        const msg = /weak|pwned|known/i.test(error.message)
+          ? "Senha demasiado fraca ou comprometida. Use 12+ caracteres com maiúsculas, números e símbolos."
+          : error.message;
+        throw new Error(msg);
+      }
+      userId = c.user?.id;
+      created = true;
+    }
+    if (!userId) throw new Error("Falha ao obter ID do utilizador.");
+
+    // Concede papel super_admin (idempotente) e limpa seed pendente.
+    const { error: rErr } = await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: userId, role: "super_admin" }, { onConflict: "user_id,role" });
+    if (rErr) throw new Error(rErr.message);
+    await supabaseAdmin.from("super_admin_seed").delete().ilike("email", data.email);
+
+    return { ok: true, created };
+  });
