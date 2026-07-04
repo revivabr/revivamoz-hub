@@ -44,7 +44,7 @@ async function uploadComprovante(projetoId: string, file: File): Promise<string>
   return path;
 }
 
-export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, onSaved, triggerSize = "default", triggerFullWidth = false }: Props) {
+export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, onSaved, triggerSize = "default", triggerFullWidth = false, isSuperAdmin = false }: Props) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [catOpen, setCatOpen] = useState(false);
