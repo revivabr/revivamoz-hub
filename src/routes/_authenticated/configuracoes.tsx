@@ -70,18 +70,16 @@ function SettingsPage() {
   });
 
   const grantMutation = useMutation({
-    mutationFn: async (target: string) => {
-      const { data, error } = await supabase.rpc("grant_super_admin_by_email", { _email: target });
-      if (error) throw error;
-      return data as string;
+    mutationFn: async (vars: { email: string; password: string; fullName: string }) => {
+      return await createSuperAdminFn({
+        data: { email: vars.email, password: vars.password, fullName: vars.fullName },
+      });
     },
-    onSuccess: (status) => {
-      toast.success(
-        status === "granted"
-          ? "Super Admin atribuído."
-          : "E-mail registado — será promovido no primeiro login.",
-      );
+    onSuccess: (res) => {
+      toast.success(res.created ? "Super Admin criado." : "Super Admin atribuído (conta existente atualizada).");
       setEmail("");
+      setSaPassword("");
+      setSaFullName("");
       queryClient.invalidateQueries({ queryKey: ["super-admins"] });
     },
     onError: (err: Error) => toast.error(err.message),
