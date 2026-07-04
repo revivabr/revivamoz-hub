@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { AiProvedoresCard } from "@/components/configuracoes/AiProvedoresCard";
+import { CategoriasCard } from "@/components/configuracoes/CategoriasCard";
 import { Mail } from "lucide-react";
 import { testBrevoEmail } from "@/lib/notifications.functions";
 import { seedDemoData, clearDemoData, countDemoData } from "@/lib/demo-data.functions";
