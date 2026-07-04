@@ -149,7 +149,9 @@ function ProjetoDashboard() {
               onSaved={invalidate("lancamentos")}
               triggerSize="lg"
               triggerFullWidth
+              isSuperAdmin={!!isSuperAdmin}
             />
+
           )}
         </div>
         {projeto.descricao && (

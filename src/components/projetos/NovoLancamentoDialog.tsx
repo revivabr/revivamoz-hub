@@ -23,7 +23,9 @@ interface Props {
   onSaved: () => void;
   triggerSize?: "default" | "sm" | "lg";
   triggerFullWidth?: boolean;
+  isSuperAdmin?: boolean;
 }
+
 
 
 const initialForm = () => ({
@@ -42,7 +44,7 @@ async function uploadComprovante(projetoId: string, file: File): Promise<string>
   return path;
 }
 
-export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, onSaved, triggerSize = "default", triggerFullWidth = false }: Props) {
+export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, onSaved, triggerSize = "default", triggerFullWidth = false, isSuperAdmin = false }: Props) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [catOpen, setCatOpen] = useState(false);
@@ -136,14 +138,19 @@ export function NovoLancamentoDialog({ projetoId, categorias, etapas, userId, on
                   {catsFiltradas.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
                   ))}
-                  {catsFiltradas.length > 0 && <div className="my-1 h-px bg-border" />}
-                  <button
-                    type="button"
-                    onMouseDown={(e) => { e.preventDefault(); setCatOpen(true); }}
-                    className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-primary hover:bg-accent"
-                  >
-                    <Plus className="h-3 w-3" /> Criar categoria
-                  </button>
+                  {isSuperAdmin && (
+                    <>
+                      {catsFiltradas.length > 0 && <div className="my-1 h-px bg-border" />}
+                      <button
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); setCatOpen(true); }}
+                        className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-primary hover:bg-accent"
+                      >
+                        <Plus className="h-3 w-3" /> Criar categoria
+                      </button>
+                    </>
+                  )}
+
                 </SelectContent>
               </Select>
             </div>
