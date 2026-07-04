@@ -7,7 +7,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { EmptyState } from "@/components/empty-state/EmptyState";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { adminCreateUser, adminSeedGestores, adminListUsers, adminResetPassword, adminUpdateUser, adminDeleteUser } from "@/lib/admin-users.functions";
+import { adminCreateUser, adminSeedGestores, adminListUsers, adminResetPassword, adminUpdateUser, adminDeleteUser, adminCreateSuperAdmin } from "@/lib/admin-users.functions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
