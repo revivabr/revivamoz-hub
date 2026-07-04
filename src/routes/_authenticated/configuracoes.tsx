@@ -132,33 +132,54 @@ function SettingsPage() {
             <Shield className="h-5 w-5" /> Super Administradores
           </CardTitle>
           <CardDescription>
-            Os Super Admins têm acesso total a todos os projetos. Pode adicionar e-mails antes
-            mesmo da conta existir — a promoção é aplicada automaticamente no primeiro login.
+            Os Super Admins têm acesso total a todos os projetos. Como o sign-up público está
+            desativado, defina aqui o nome e a senha inicial — a conta é criada (ou atualizada,
+            se já existir) e o papel de Super Admin é atribuído imediatamente.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <form
-            className="flex flex-col gap-3 sm:flex-row"
+            className="grid gap-3 sm:grid-cols-2"
             onSubmit={(e) => {
               e.preventDefault();
               const value = email.trim().toLowerCase();
-              if (!value) return;
-              grantMutation.mutate(value);
+              const pwd = saPassword;
+              const name = saFullName.trim();
+              if (!value || !pwd || !name) {
+                toast.error("Preencha nome, e-mail e senha.");
+                return;
+              }
+              if (pwd.length < 6) {
+                toast.error("Senha deve ter no mínimo 6 caracteres.");
+                return;
+              }
+              grantMutation.mutate({ email: value, password: pwd, fullName: name });
             }}
           >
-            <Input
-              type="email"
-              required
-              placeholder="email@exemplo.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="sm:max-w-sm"
-            />
-            <Button type="submit" disabled={grantMutation.isPending}>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Adicionar Super Admin
-            </Button>
+            <div className="space-y-1.5">
+              <Label htmlFor="sa-name">Nome completo</Label>
+              <Input id="sa-name" required placeholder="Nome do Super Admin"
+                value={saFullName} onChange={(e) => setSaFullName(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="sa-email">E-mail</Label>
+              <Input id="sa-email" type="email" required placeholder="email@exemplo.com"
+                value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="sa-pwd">Senha inicial</Label>
+              <Input id="sa-pwd" type="password" required minLength={6}
+                placeholder="Mínimo 6 caracteres"
+                value={saPassword} onChange={(e) => setSaPassword(e.target.value)} />
+            </div>
+            <div className="flex items-end">
+              <Button type="submit" disabled={grantMutation.isPending} className="w-full sm:w-auto">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Adicionar Super Admin
+              </Button>
+            </div>
           </form>
+
 
           <div className="space-y-2">
             {loadingAdmins ? (
