@@ -41,6 +41,9 @@ function SettingsPage() {
   const { t } = useI18n();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
+  const [saPassword, setSaPassword] = useState("");
+  const [saFullName, setSaFullName] = useState("");
+  const createSuperAdminFn = useServerFn(adminCreateSuperAdmin);
 
   const { data: isSuperAdmin, isLoading: checkingRole } = useQuery({
     queryKey: ["is-super-admin"],
