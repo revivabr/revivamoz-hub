@@ -1,3 +1,52 @@
+/* Execute esta instrucao no projeto: # Reviva Projects Hub - Aplicação Offline-First com Sincronização Automática
+
+## 1. Visão Geral e Objetivo
+
+Desenvolver uma aplicação robusta que permita aos usuários realizar "lançamentos" (registros, transações, etc.) de forma contínua, mesmo na ausência de conexão com a internet. A aplicação deverá ser instalável localmente e, uma vez online, sincronizará automaticamente os dados com um banco de dados central, garantindo a integridade e atualização das informações.
+
+## 2. Requisitos Funcionais
+
+### 2.1. Instalação e Operação Offline
+
+*   **Instalação Local:** A aplicação deve ser instalável diretamente nos dispositivos dos usuários, garantindo sua disponibilidade sem dependência de internet para inicialização.
+*   **Acesso Offline:** Após a instalação e um primeiro ciclo de sincronização (se aplicável), os usuários devem ser capazes de acessar e visualizar dados previamente sincronizados, mesmo totalmente offline.
+*   **Autenticação Offline:** A autenticação do usuário deve ser possível mesmo sem conexão, utilizando credenciais armazenadas localmente.
+
+### 2.2. Gerenciamento de Lançamentos Offline
+
+*   **Criação e Edição:** Usuários devem ser capazes de criar, editar e excluir novos lançamentos (registros, itens, transações, etc.) enquanto estiverem offline.
+*   **Armazenamento Local:** Todos os lançamentos feitos offline devem ser armazenados de forma persistente e segura no dispositivo do usuário.
+*   **Feedback Visual:** A interface deve indicar claramente quais lançamentos são novos ou foram modificados offline e ainda não foram sincronizados.
+
+### 2.3. Sincronização Automática de Dados
+
+*   **Detecção de Conexão:** A aplicação deve monitorar ativamente o status da conexão à internet e iniciar o processo de sincronização automaticamente ao detectar conectividade.
+*   **Fluxo de Sincronização:**
+    *   **Upload:** Todos os lançamentos novos, modificados ou excluídos offline devem ser enviados para o banco de dados central.
+    *   **Download:** Novos dados e atualizações do banco de dados central devem ser baixados e integrados ao banco de dados local do usuário.
+*   **Resolução de Conflitos:** Deve haver uma estratégia robusta para lidar com conflitos de dados (ex: quando o mesmo registro é alterado offline e também por outro usuário no servidor). Estratégias a considerar: "última modificação vence", fusão inteligente, ou interface para resolução manual pelo usuário.
+*   **Sincronização Manual:** Além da sincronização automática, os usuários devem ter a opção de iniciar uma sincronização manual a qualquer momento.
+*   **Resiliência:** O processo de sincronização deve ser capaz de retomar de onde parou em caso de interrupção da conexão, sem perda de dados.
+
+### 2.4. Visualização Consistente dos Dados
+
+*   Os usuários devem ter uma visão unificada e consistente de todos os lançamentos, independentemente de estarem sincronizados ou pendentes, com clara distinção visual entre eles.
+
+## 3. Requisitos de Interface do Usuário (UI) e Experiência do Usuário (UX)
+
+*   **Feedback de Conectividade:** Apresentar um indicador visual proeminente na interface que informe claramente o status da conexão do usuário (online/offline).
+*   **Status de Sincronização:** Exibir um indicador de progresso e status da sincronização (ex: "Sincronizando...", "Sincronizado com sucesso", "Erros na sincronização").
+*   **Experiência Fluida Offline:** A aplicação deve ser rápida e responsiva ao interagir com dados locais, garantindo uma experiência de usuário sem atritos mesmo sem internet.
+*   **Notificações:** Utilizar notificações discretas para informar sobre o sucesso ou falha da sincronização.
+*   **Design Adaptativo:** A interface deve ser intuitiva e adaptável a diferentes tamanhos de tela e dispositivos (se aplicável, para desktop e/ou mobile/web).
+
+## 4. Requisitos Não Funcionais
+
+*   **Performance:** A sincronização deve ser otimizada para ser rápida e eficiente, minimizando o consumo de recursos (bateria, dados). A aplicação deve ser responsiva tanto online quanto offline.
+*   **Segurança:** Os dados armazenados localmente e em trânsito (durante a sincronização) devem ser criptografados e protegidos contra acesso não autorizado. As informações de autenticação devem ser tratadas com segurança rigorosa.
+*   **Confiabilidade:** O sistema deve ser tolerante a falhas, garantindo que não haja perda de dados em caso de interrupções de conexão ou falhas de hardware/software.
+*   **Escalabilidade:** A arquitetura de sincronização e o banco de dados central devem ser projetados para suportar um número crescente de usuários e um grande volume de dados.
+*   **Manutenibilidade:** O código deve ser bem estruturado e documentado para facilitar futuras manutenções e evoluções. */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
