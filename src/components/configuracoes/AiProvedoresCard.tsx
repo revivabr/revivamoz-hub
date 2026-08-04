@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { PasswordInput } from "@/components/ui/password-input";
+
 import { supabase } from "@/integrations/supabase/client";
 import { testAiProviderEndpoints } from "@/lib/ai.functions";
 import { toast } from "sonner";
