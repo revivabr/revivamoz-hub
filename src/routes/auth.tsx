@@ -131,14 +131,14 @@ function AuthPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signin-password">{t("auth.password")}</Label>
-                  <Input
+                  <PasswordInput
                     id="signin-password"
-                    type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="current-password"
                   />
+
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
