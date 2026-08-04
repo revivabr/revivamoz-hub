@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { PasswordInput } from "@/components/ui/password-input";
+
 import { supabase } from "@/integrations/supabase/client";
 import { testAiProviderEndpoints } from "@/lib/ai.functions";
 import { toast } from "sonner";
@@ -179,13 +181,12 @@ export function AiProvedoresCard() {
           </div>
           <div className="space-y-1">
             <Label>API Key {isEditing && <span className="text-xs text-muted-foreground">(opcional — deixe vazio para manter)</span>}</Label>
-            <input
-              type="password"
+            <PasswordInput
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder={isEditing ? `••••${existing!.api_key.slice(-4)} (manter)` : PROVEDOR_INFO[novo].help}
             />
+
           </div>
           <div className="space-y-1">
             <Label>Modelo por defeito</Label>

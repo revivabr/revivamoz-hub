@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { adminCreateUser, adminSeedGestores, adminListUsers, adminResetPassword, adminUpdateUser, adminDeleteUser, adminCreateSuperAdmin } from "@/lib/admin-users.functions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -170,9 +172,10 @@ function SettingsPage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="sa-pwd">Senha inicial</Label>
-              <Input id="sa-pwd" type="password" required minLength={6}
+              <PasswordInput id="sa-pwd" required minLength={6}
                 placeholder="Mínimo 6 caracteres"
                 value={saPassword} onChange={(e) => setSaPassword(e.target.value)} />
+
             </div>
             <div className="flex items-end">
               <Button type="submit" disabled={grantMutation.isPending} className="w-full sm:w-auto">
