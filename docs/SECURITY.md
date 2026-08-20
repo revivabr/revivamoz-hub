@@ -25,7 +25,9 @@ Princípios:
 - `super_admin` bypassa via `has_role(auth.uid(), 'super_admin')` em todas as
   políticas críticas.
 - `gestor` do projeto pode gerir tudo dentro do seu projeto via
-  `is_projeto_gestor(auth.uid(), projeto_id)`.
+  `is_projeto_gestor(auth.uid(), projeto_id)`, **exceto** papéis `gestor`:
+  atribuir/remover o papel `gestor` em `projeto_membros` é exclusivo do
+  `super_admin` (evita escalada de privilégios entre gestores).
 - `financiador` / `leitor` só consegue ler dados do projeto a que pertence
   via `is_projeto_member(...)`.
 - Não há políticas `TO anon`. O único acesso público é via **RPC**
