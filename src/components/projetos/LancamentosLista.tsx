@@ -123,8 +123,9 @@ function LancamentoRow({
         </div>
         <div className="mt-1 flex items-center justify-end gap-1">
           {l.comprovante_path && <ComprovantePreview path={l.comprovante_path} />}
+          {editDialog}
           {canEdit && (
-            <Button size="icon" variant="ghost" onClick={onDelete}>
+            <Button size="icon" variant="ghost" onClick={onDelete} title="Apagar lançamento" aria-label="Apagar lançamento">
               <Trash2 className="h-4 w-4" />
             </Button>
           )}
