@@ -62,7 +62,7 @@ function useIsSuperAdmin(userId: string | undefined) {
 
 function useIsGestor(projetoId: string, userId: string | undefined, isSuperAdmin: boolean) {
   return useQuery({
-    queryKey: ["is-gestor-proj", projetoId, userId],
+    queryKey: ["is-gestor-proj", projetoId, userId, isSuperAdmin],
     enabled: !!userId,
     queryFn: async () => {
       const { data } = await supabase.rpc("is_projeto_gestor", { _user_id: userId!, _projeto_id: projetoId });
