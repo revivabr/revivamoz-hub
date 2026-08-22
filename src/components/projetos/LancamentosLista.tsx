@@ -91,7 +91,7 @@ export function LancamentosLista({
 }
 
 function LancamentoRow({
-  lancamento: l, moeda, canEdit, categoriaNome, etapaNome, onDelete,
+  lancamento: l, moeda, canEdit, categoriaNome, etapaNome, onDelete, editDialog,
 }: {
   lancamento: Lancamento;
   moeda: string;
@@ -99,6 +99,7 @@ function LancamentoRow({
   categoriaNome?: string;
   etapaNome?: string;
   onDelete: () => void;
+  editDialog?: React.ReactNode;
 }) {
   const isEntrada = l.tipo === "entrada";
   return (

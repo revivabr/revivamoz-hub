@@ -202,6 +202,8 @@ function ProjetoDashboard() {
             etapas={etapas}
             moeda={projeto.moeda}
             canEdit={!!isGestor}
+            isSuperAdmin={!!isSuperAdmin}
+            projetoId={projetoId}
             onChanged={invalidate("lancamentos")}
           />
         </TabsContent>
