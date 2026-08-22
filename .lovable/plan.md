@@ -1,37 +1,21 @@
 # Edição de lançamentos nos projetos
 
 ## Objetivo
-Permitir corrigir qualquer lançamento já registado (descrição, valor, data, tipo, categoria, etapa e comprovante) diretamente na página do projeto, para quem tem permissão de gestão (gestor do projeto ou super admin).
+Adicionar um **botão de editar (lápis) em cada lançamento** da lista, ao lado do botão apagar. Ao clicar, abre uma janela com os dados daquele lançamento já preenchidos para corrigir o que for necessário (descrição, valor, data, tipo, categoria, etapa ou comprovante) e guardar.
 
-## Estado atual (confirmado)
-- A lista de lançamentos (`LancamentosLista`) só tem ação de **apagar** — não existe edição.
-- A base de dados **já autoriza** a atualização: a regra "Gestores atualizam lancamentos" permite a gestores do projeto e super admins editarem lançamentos. Não é precisa nenhuma migração.
-- Cada edição fica automaticamente registada no **trilho de auditoria** (antes/depois), porque o gatilho de auditoria já cobre atualizações na tabela de lançamentos.
+## Como funciona
+- Cada linha da lista de lançamentos passa a ter dois ícones: **editar** (lápis) e **apagar** (lixeira).
+- O botão editar aparece apenas para **gestor do projeto e super admin** — as mesmas permissões do botão apagar. Leitores e financiadores não veem.
+- A janela de edição usa o mesmo formulário do "Novo lançamento", mas vem preenchida com os dados atuais.
+- Ao guardar, a lista, os totais e os gráficos do projeto atualizam automaticamente.
+- Se o lançamento tiver comprovante, dá para **substituir** o ficheiro ou **removê-lo**.
+- Editar exige ligação à internet (criar offline continua a funcionar como hoje).
 
-## O que será construído
+## Sem mexer na base de dados
+- A base de dados **já permite** a edição por gestores e super admin — não é precisa nenhuma alteração.
+- Cada correção fica **registada automaticamente no trilho de auditoria** (valores antes e depois), como já acontece com criações e eliminações.
 
-### 1. Formulário partilhado (criar e editar)
-- Extrair os campos do formulário de `NovoLancamentoDialog.tsx` (tipo, data, valor, categoria, etapa, descrição, comprovante) para um componente reutilizável, evitando duplicação entre "novo" e "editar".
-- O diálogo de criar continua exatamente igual para o utilizador.
-
-### 2. Novo diálogo "Editar lançamento"
-- Ficheiro novo `EditarLancamentoDialog.tsx` que abre com os dados do lançamento já preenchidos.
-- Ao guardar: atualiza o registo e mostra confirmação ("Lançamento atualizado.").
-- **Comprovante**: mostra o ficheiro atual (se existir) com opções de **substituir** (envia novo ficheiro e remove o antigo do armazenamento) ou **remover** sem substituir.
-- **Offline**: criar lançamento sem ligação continua a ir para a fila offline, mas **editar exige ligação** — se estiver offline, mostra aviso "Edição requer ligação à internet" (a fila offline atual só suporta criação).
-- A criação rápida de categorias dentro do formulário continua restrita ao super admin, como hoje.
-
-### 3. Botão de editar na lista
-- Em `LancamentosLista.tsx`, adicionar um ícone de **lápis** ao lado da lixeira em cada linha, visível apenas para quem pode editar (`canEdit` — gestor do projeto ou super admin), as mesmas permissões do botão apagar.
-- Leitores e financiadores não veem o botão.
-- Após guardar, a lista e os totais/gráficos do projeto atualizam automaticamente.
-
-## Ficheiros afetados
-- `src/components/projetos/LancamentosLista.tsx` — botão de editar por linha.
-- `src/components/projetos/EditarLancamentoDialog.tsx` — novo diálogo de edição.
-- `src/components/projetos/NovoLancamentoDialog.tsx` — extrair campos para componente partilhado (sem mudança visual).
-- Novo: `src/components/projetos/LancamentoFormFields.tsx` — campos partilhados.
-
-## Fora de âmbito
-- Sem alterações à base de dados ou permissões (já estão corretas).
-- Edição offline em fila (pode ser uma fase futura).
+## Detalhes técnicos
+- Novo componente `EditarLancamentoDialog.tsx` com o formulário preenchido e a gravação via atualização do registo.
+- Campos do formulário extraídos para um componente partilhado, reutilizado pelo diálogo de criar (sem mudança visual).
+- Botão de lápis adicionado em `LancamentosLista.tsx` junto à lixeira.
