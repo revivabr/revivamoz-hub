@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { ComprovantePreview } from "./ComprovantePreview";
+import { EditarLancamentoDialog } from "./EditarLancamentoDialog";
 import type { Categoria, Etapa, Lancamento } from "@/lib/projetos/types";
 
 interface Props {
@@ -15,6 +16,8 @@ interface Props {
   etapas: Etapa[];
   moeda: string;
   canEdit: boolean;
+  isSuperAdmin: boolean;
+  projetoId: string;
   onChanged: () => void;
 }
 
@@ -27,7 +30,7 @@ async function deleteLancamento(l: Lancamento) {
 }
 
 export function LancamentosLista({
-  lancamentos, categorias, etapas, moeda, canEdit, onChanged,
+  lancamentos, categorias, etapas, moeda, canEdit, isSuperAdmin, projetoId, onChanged,
 }: Props) {
   const catMap = useMemo(
     () => Object.fromEntries(categorias.map((c) => [c.id, c.nome])),
@@ -69,6 +72,16 @@ export function LancamentosLista({
               onDelete={() => {
                 if (confirm("Apagar este lançamento?")) apagar.mutate(l);
               }}
+              editDialog={canEdit ? (
+                <EditarLancamentoDialog
+                  lancamento={l}
+                  projetoId={projetoId}
+                  categorias={categorias}
+                  etapas={etapas}
+                  isSuperAdmin={isSuperAdmin}
+                  onSaved={onChanged}
+                />
+              ) : null}
             />
           ))}
         </ul>
@@ -78,7 +91,7 @@ export function LancamentosLista({
 }
 
 function LancamentoRow({
-  lancamento: l, moeda, canEdit, categoriaNome, etapaNome, onDelete,
+  lancamento: l, moeda, canEdit, categoriaNome, etapaNome, onDelete, editDialog,
 }: {
   lancamento: Lancamento;
   moeda: string;
@@ -86,6 +99,7 @@ function LancamentoRow({
   categoriaNome?: string;
   etapaNome?: string;
   onDelete: () => void;
+  editDialog?: React.ReactNode;
 }) {
   const isEntrada = l.tipo === "entrada";
   return (
@@ -109,8 +123,9 @@ function LancamentoRow({
         </div>
         <div className="mt-1 flex items-center justify-end gap-1">
           {l.comprovante_path && <ComprovantePreview path={l.comprovante_path} />}
+          {editDialog}
           {canEdit && (
-            <Button size="icon" variant="ghost" onClick={onDelete}>
+            <Button size="icon" variant="ghost" onClick={onDelete} title="Apagar lançamento" aria-label="Apagar lançamento">
               <Trash2 className="h-4 w-4" />
             </Button>
           )}
