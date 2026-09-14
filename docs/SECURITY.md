@@ -24,15 +24,21 @@ Princípios:
 
 - `super_admin` bypassa via `has_role(auth.uid(), 'super_admin')` em todas as
   políticas críticas.
-- `gestor` do projeto pode gerir tudo dentro do seu projeto via
-  `is_projeto_gestor(auth.uid(), projeto_id)`, **exceto** papéis `gestor`:
-  atribuir/remover o papel `gestor` em `projeto_membros` é exclusivo do
-  `super_admin` (evita escalada de privilégios entre gestores).
+- `gestor` do projeto pode gerir lançamentos, etapas e membros não gestores via
+  `is_projeto_gestor(auth.uid(), projeto_id)`.
+- Categorias globais ou por projeto e qualquer atribuição/remoção do papel
+  `gestor` são exclusivas do `super_admin` (evita escalada de privilégios e
+  mantém a classificação financeira centralizada).
 - `financiador` / `leitor` só consegue ler dados do projeto a que pertence
   via `is_projeto_member(...)`.
-- Não há políticas `TO anon`. O único acesso público é via **RPC**
+- Não há leitura anónima direta das tabelas de negócio. O único acesso público é via **RPC**
   `get_relatorio_publico(token)` (SECURITY DEFINER, valida `expires_at` e
   `revoked`).
+
+As funções `SECURITY DEFINER` internas têm execução revogada de `PUBLIC` e
+`anon`. Funções chamadas pela aplicação são concedidas apenas a
+`authenticated`; triggers e rotinas de manutenção não podem ser chamadas
+diretamente por utilizadores autenticados.
 
 ### Segurança do portal público de doador
 
@@ -68,7 +74,9 @@ Regras:
 
 Triggers de `audit_trigger()` em `lancamentos`, `projetos`, `etapas`,
 `projeto_membros`, `categorias`. Registam `actor_id`, `actor_email`,
-`operation`, `old_data`, `new_data`. Visível em `/auditoria` para super admins.
+`operation`, `old_data`, `new_data`. A edição de um lançamento, incluindo
+categoria ou comprovativo, fica registada com os valores anterior e novo.
+O trilho é visível em `/auditoria` apenas para Super Admins.
 
 ## Backups
 

@@ -5,7 +5,7 @@
 | Perfil | Pode |
 | --- | --- |
 | **Super Admin** | Tudo: criar/editar/apagar projetos, gerir utilizadores, provedores IA, ver auditoria e backups |
-| **Gestor** | Gerir o(s) projeto(s) onde é gestor: lançamentos, categorias, etapas, convidar membros |
+| **Gestor** | Gerir lançamentos e etapas dos seus projetos; categorias e papéis de gestor continuam exclusivos do Super Admin |
 | **Financiador / Leitor** | Ver dashboards, lançamentos e relatórios dos projetos onde foi adicionado |
 
 ## Login
@@ -19,7 +19,7 @@
 ### Criar utilizador
 1. `Configurações → Criar utilizador`.
 2. Preencher nome, email, password temporária.
-3. **Escolher o projeto** (obrigatório) e o **papel** (gestor/financiador/leitor).
+3. **Escolher um ou vários projetos** (obrigatório) e o **papel** (gestor/financiador/leitor).
 4. (Opcional) Marcar "Promover a super admin".
 5. Enviar credenciais ao utilizador por canal seguro.
 
@@ -30,6 +30,12 @@
 3. Carregar logo 16:9 (jpg/png/svg). Caso não haja, o nome aparece como
    fallback.
 4. Adicionar gestores e membros depois em `projeto → Membros`.
+
+### Gerir categorias
+1. `Configurações → Categorias`.
+2. Escolher **Global** para disponibilizar em todos os projetos, ou selecionar um projeto específico.
+3. Escolher Entrada/Saída, definir o nome e guardar.
+4. As categorias “Não sei” existem globalmente para classificação posterior.
 
 ### Gerir Provedores IA
 1. `Configurações → Provedores IA`.
@@ -47,11 +53,15 @@
 ### Lançar entrada/saída
 1. Abrir o projeto → **Novo lançamento**.
 2. Escolher tipo (entrada/saída), data, valor, categoria.
-3. Para criar uma **nova categoria** no momento, clicar **"+ Criar categoria"**
-   no fim da lista — abre modal, preenche nome e a categoria fica disponível
-   imediatamente (escopada a este projeto e a este tipo).
+3. Se ainda não souber a classificação, escolher **Não sei**; novas categorias são criadas pelo Super Admin.
 4. (Opcional) Anexar comprovativo (jpg/png/pdf).
 5. Guardar.
+
+### Corrigir um lançamento
+1. Na lista do projeto, clicar no **lápis** ao lado do lançamento.
+2. Corrigir tipo, data, valor, categoria, etapa ou descrição.
+3. Se necessário, substituir ou remover o comprovativo.
+4. Guardar alterações. O sistema atualiza os totais e registra o antes/depois na auditoria.
 
 ### Cronograma físico (etapas)
 1. No projeto → **Etapas** → **Nova etapa**.
