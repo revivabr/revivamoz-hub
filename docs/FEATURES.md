@@ -15,10 +15,9 @@ Super admin cria/edita; gestores gerem o próprio projeto.
 ## Dashboard do Projeto (`/projetos/$projetoId`)
 
 - KPIs do projeto (`ProjetoKpiCard`).
-- Lista de lançamentos (`LancamentosLista`) com filtro e pré-visualização
-  (`ComprovantePreview`).
-- Diálogo `NovoLancamentoDialog` com criação inline de categorias
-  (escopadas a `projeto_id` + `tipo`).
+- Lista de lançamentos (`LancamentosLista`) com filtro, pré-visualização de comprovativo e edição posterior.
+- Os diálogos de criação e edição partilham `LancamentoFormFields`; gestores e Super Admin podem corrigir dados e substituir/remover comprovativos.
+- Categorias globais ou por projeto são geridas exclusivamente pelo Super Admin em Configurações. As categorias globais “Não sei” cobrem entrada e saída para classificação posterior.
 - Secção `EtapasSection` (cronograma físico) com peso e progresso.
 
 ## Fluxo de Caixa (`/fluxo-caixa`)
@@ -60,7 +59,8 @@ provedor ativo configurado pelo super admin. Histórico em
 
 Acessível apenas a super admin:
 
-- **Criar utilizador** (com associação obrigatória a projeto + papel).
+- **Criar utilizador** (com associação obrigatória a um ou vários projetos + papel).
+- **Categorias**: criar e remover categorias globais ou de um projeto específico.
 - **Super Admins**: grant / revoke por email; seeds pendentes.
 - **Provedores IA** (`AiProvedoresCard`):
   - Guardar API key uma vez; trocar modelo sem repor a key.
