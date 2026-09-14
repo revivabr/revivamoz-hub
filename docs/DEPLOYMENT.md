@@ -4,7 +4,7 @@
 
 - **Frontend + server functions** correm em Cloudflare Workers (TanStack Start
   + Vite build, target edge). Lovable Cloud trata do deploy.
-- **Backend** = Supabase Postgres (gerido pelo Lovable Cloud).
+- **Backend** = PostgreSQL, autenticação e armazenamento geridos pelo Lovable Cloud.
 
 ## Publicar
 
@@ -29,23 +29,25 @@
 
 > Todas estão configuradas no Lovable Cloud. Não as colocar em `.env` commitado.
 
-## URLs estáveis
+## URLs
 
-- Produção: `project--4e38af4c-3639-4633-8366-8f666466ae5e.lovable.app`
-- Preview:  `project--4e38af4c-3639-4633-8366-8f666466ae5e-dev.lovable.app`
+- Domínio principal: `https://hub.revivamoz.com`
+- URL publicada Lovable: `https://revivamoz-hub.lovable.app`
+- Preview: `https://id-preview--4e38af4c-3639-4633-8366-8f666466ae5e.lovable.app`
 
-Estas URLs são usadas pelos cron jobs (chamam `/api/public/hooks/backup`).
+O agendador deve chamar uma URL publicada e estável em
+`/api/public/hooks/backup`; nunca deve apontar para o preview.
 
 ## Cron Jobs
 
-Configurados via `pg_cron` no Supabase (já incluídos na migration original):
+Configurados no agendador PostgreSQL do Lovable Cloud:
 
 ```sql
 SELECT cron.schedule(
   'backup-12h',
   '0 10 * * *', -- 12:00 Maputo (UTC+2)
   $$ SELECT net.http_post(
-       url := 'https://project--…lovable.app/api/public/hooks/backup',
+       url := 'https://revivamoz-hub.lovable.app/api/public/hooks/backup',
        headers := '{"x-backup-secret":"<SECRET>"}'::jsonb
      ); $$
 );
